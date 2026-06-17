@@ -1,0 +1,42 @@
+import tkinter as tk
+from funionesJoel import *
+from funcionesAlexis import observarEspacio
+ventana = tk.Tk()
+ventana.title("Estacionamiento")
+ventana.geometry("1020x720")
+tk.Label(ventana, text="Ver Estacionamiento", font=("Arial", 20, "bold")).grid(row=0, column=1, padx=10, pady=5)
+marcoEstacionamientos = tk.Frame(ventana)
+marcoEstacionamientos.grid(row=1, column=0, columnspan=3, sticky="w")
+def crearCoso(val1, val2, tamaño, baseDatos, bandera=False):
+    for carro in baseDatos:
+        indice=val2+val1*8
+        if int(carro.obtenerEstadia()[0])==indice:
+            bandera=True
+    borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
+    borde.grid(row=val1,column=val2,padx=10,pady=80)
+    tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=print(2), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
+tamaño=70
+baseDatos=convertirDiccionarioAObjetos(construirDiccionarioRestringido(cargarJson(),70,10))
+# crearCoso(0,1,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,2,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,3,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,4,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,5,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,6,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,7,tamaño=tamaño,baseDatos=baseDatos)
+# crearCoso(0,8,tamaño=tamaño,baseDatos=baseDatos)
+
+val1=0
+val2=1
+indice=val2+val1*8
+for carro in baseDatos:
+        indice=val2+val1*8
+        if int(carro.obtenerEstadia()[0])==indice:
+            bandera=True
+borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
+borde.grid(row=val1,column=val2,padx=10,pady=80)
+tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=print(2), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
+
+
+
+ventana.mainloop()

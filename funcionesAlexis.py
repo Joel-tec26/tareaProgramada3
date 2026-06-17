@@ -1,18 +1,13 @@
-from funcionesAlexis import *
+from funionesJoel import *
 import tkinter as tk
-from tkinter import messagebox, ttk
+baseDatos=convertirDiccionarioAObjetos(construirDiccionarioRestringido(cargarJson(),70,10))
 
-baseDatos=[]
-
-for i in range(15):
-    baseDatos.append([])
-
-def observarEspacio(baseDatos, num):
+def observarEspacio(baseDatos, num, valor):
     ventana = tk.Tk()
-    ventana.title("Estacionamiento: asdasd") #CAMBIAR
+    ventana.title(f"Estacionamiento: {num}") #CAMBIAR
     ventana.geometry("400x500")
-    if not baseDatos[num]:
-        tk.Label(ventana, text="Campo: asdas", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
+    if not valor:
+        tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
         tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
         tk.Entry(ventana, font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
@@ -21,23 +16,22 @@ def observarEspacio(baseDatos, num):
         tk.Entry(ventana, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
         tk.Entry(ventana, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-        tk.Button(ventana, text="Pagar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
-        tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
-    else:
-        tk.Label(ventana, text="Campo: asdas", font=("Arial", 20)).grid(row=0, column=2, padx=10, pady=5)
-        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
-        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
-        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
-        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
-        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
         tk.Button(ventana, text="Estacionar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
-        tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
+    else:
+        tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20)).grid(row=0, column=2, padx=10, pady=5)
+        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+        tk.Label(ventana, text=f"{baseDatos[num-1]}",font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[2]}",font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+        tk.Button(ventana, text="Pagar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
+    tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0,command=lambda: ventana.destroy(), activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
     return
 
-def verEstacionamiento(baseDatos):
+def verEstacionamiento(tamaño, baseDatos):
     """
     """
     ventana = tk.Tk()
@@ -61,38 +55,43 @@ def verEstacionamiento(baseDatos):
         for widget in marcoEstacionamientos.winfo_children():
             widget.destroy()
         for i in range(2):
-            for o in range(8):
+            for o in range(1,9):
                 indice=o+i*8+pagina*16
-                if indice>=len(baseDatos):
+                bandera=False
+                if indice==tamaño:
                     break
-                borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if baseDatos[indice] else "#79FF96", padx=5, pady=5)
+                for carro in baseDatos:
+                    if int(carro.obtenerEstadia()[0])==indice:
+                        bandera=True
+                borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
                 borde.grid(row=i,column=o,padx=10,pady=80)
-                tk.Button(borde, text="", width=10, height=10, bg="#FF5959" if baseDatos[indice] else "#59FF7D", bd=0, command=lambda indice=indice: observarEspacio(baseDatos, indice), activebackground="#FF3F4F" if baseDatos[indice] else "#2EFF74", cursor="hand2").grid()
-            if indice+1>=len(baseDatos):
-                if 16>=len(baseDatos):
-                    if 8>=len(baseDatos) and i==0:
+                #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria
+                #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
+                tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
+            if indice+1>=tamaño:
+                if 16>=tamaño:
+                    if 8>=tamaño and i==0:
                         break
                     if i==1:
                         break
                 borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=0,column=8,padx=80,pady=80, sticky="e")
+                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
                 tk.Button(borde, text="Anterior", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B3F0FF", cursor="hand2").grid()
                 break
             elif pagina==0:
-                if 16>=len(baseDatos):
-                    if 8>=len(baseDatos) and i==0:
+                if 16>=tamaño:
+                    if 8>=tamaño and i==0:
                         break
                     if i==1:
                         break
                 borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=0,column=8,padx=80,pady=80, sticky="e")
+                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
                 tk.Button(borde, text="Siguente", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina), activebackground="#B3F0FF", cursor="hand2").grid()
             else:
                 borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=i,column=8,padx=80,pady=80)
+                borde.grid(row=i,column=9,padx=80,pady=80)
                 tk.Button(borde, text="Siguente" if i==0 else "Anterior", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B3F0FF", cursor="hand2").grid()
     generarUI(baseDatos)
     ventana.mainloop()
 
-baseDatos[0]=1
-verEstacionamiento(baseDatos)
+verEstacionamiento(tamaño=66, baseDatos=baseDatos)
