@@ -7,34 +7,55 @@
 import pickle
 
 # definicion de funciones
-archivoDonadores = "donadores.dat"
 
-def cargarDatosDesdeArchivo():
+baseDatos = "baseDatos.pkl"
+
+def guardarBaseDatos(listaObjetos):
     """
-   función:Carga la lista almacenada en el archivo binario.
-    Entradas:
-        No recibe parámetros.
-    Salidas:
-        list: Lista de donadores cargada desde el archivo.
-              Retorna una lista vacía si el archivo no existe
-              o si ocurre un error de lectura.
+    Funcionalidad:
+        Serializa y guarda la lista de objetos Estacionamiento
+        en memoria secundaria usando pickle.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+    Salida:
+        - (None)
+    """
+    archivo = open(baseDatos, "wb")
+    pickle.dump(listaObjetos, archivo)
+    archivo.close()
+
+
+def cargarBaseDatos():
+    """
+    Funcionalidad:
+        Carga la lista de objetos Estacionamiento desde memoria secundaria.
+        Retorna lista vacía si el archivo no existe.
+    Entrada:
+        - (None)
+    Salida:
+        - listaObjetos (list): Lista de objetos Estacionamiento recuperada.
     """
     try:
-        with open(archivoDonadores, "rb") as archivo:
-            return pickle.load(archivo)
+        archivo = open(baseDatos, "rb")
+        listaObjetos = pickle.load(archivo)
+        archivo.close()
+        return listaObjetos
     except FileNotFoundError:
         return []
-    except (pickle.PickleError, EOFError):
-        return []
 
-def guardarEnArchivo(matrizGuardar):
+
+def existeBaseDatos():
     """
-    funcion: Guarda en un archivo binario.
-    entradas:
-    - matrizGuardar: matriz con la información de los donadores.
-    salidas:
-    - Ninguna.
+    Funcionalidad:
+        Verifica si ya existe un archivo de base de datos en memoria secundaria.
+    Entrada:
+        - (None)
+    Salida:
+        - existe (bool): True si el archivo existe, False si no.
     """
-    with open(archivoDonadores, "wb") as archivo:
-        pickle.dump(matrizGuardar, archivo)
-    return
+    try:
+        archivo = open(baseDatos, "rb")
+        archivo.close()
+        return True
+    except FileNotFoundError:
+        return False
