@@ -2,12 +2,39 @@ from funcionesAlexis import *
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-baseDatos=[] #prueba
+baseDatos=[]
 
-for i in range(70):
+for i in range(15):
     baseDatos.append([])
 
 def observarEspacio(baseDatos, num):
+    ventana = tk.Tk()
+    ventana.title("Estacionamiento: asdasd") #CAMBIAR
+    ventana.geometry("400x500")
+    if not baseDatos[num]:
+        tk.Label(ventana, text="Campo: asdas", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
+        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+        tk.Entry(ventana, font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+        tk.Entry(ventana, font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+        tk.Entry(ventana, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+        tk.Entry(ventana, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+        tk.Button(ventana, text="Pagar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
+        tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
+    else:
+        tk.Label(ventana, text="Campo: asdas", font=("Arial", 20)).grid(row=0, column=2, padx=10, pady=5)
+        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+        tk.Label(ventana, text="ASD",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+        tk.Button(ventana, text="Estacionar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
+        tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
     return
 
 def verEstacionamiento(baseDatos):
