@@ -1,6 +1,5 @@
 from funionesJoel import *
 import tkinter as tk
-baseDatos=convertirDiccionarioAObjetos(construirDiccionarioRestringido(cargarJson(),70,10))
 
 def observarEspacio(baseDatos, num, valor):
     ventana = tk.Toplevel()
@@ -22,9 +21,9 @@ def observarEspacio(baseDatos, num, valor):
         tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
         tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{baseDatos[num-1]}",font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+        tk.Label(ventana, text=f"{marcasValidas[baseDatos[num-1].obtenerInfo()[1]]}", font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[2]}",font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+        tk.Label(ventana, text=f"{coloresValidos[baseDatos[num-1].obtenerInfo()[2]]}", font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
         tk.Label(ventana, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
         tk.Button(ventana, text="Pagar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
@@ -92,6 +91,4 @@ def verEstacionamiento(tamaño, baseDatos):
                 borde.grid(row=i,column=9,padx=80,pady=80)
                 tk.Button(borde, text="Siguente" if i==0 else "Anterior", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B3F0FF", cursor="hand2").grid()
     generarUI(baseDatos)
-    ventana.mainloop()
 
-verEstacionamiento(tamaño=66, baseDatos=baseDatos)

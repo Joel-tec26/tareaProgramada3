@@ -132,3 +132,152 @@ class Estacionamiento:
         print(f"  Hora salida    : {self.estadia[2]}")
         print(f"  Monto          : {self.pago[0]}")
         print(f"  Tipo de pago   : {self.pago[1]}")
+
+
+# clase de configurcion
+
+class Configuracion:
+    """
+    Funcionalidad:
+        Almacena la configuracion general del sistema de estacionamiento.
+    Entrada:
+        - tamano (int): Cantidad de espacios del estacionamiento.
+        - montoPorHora (int): Monto cobrado por hora en colones.
+        - tiempoGracia (int): Minutos de gracia antes de cobrar.
+        - tieneElectrico (bool): Indica si el parqueo tiene espacio electrico.
+        - listaObjetos (list): Lista de objetos Estacionamiento (base de datos).
+    Salida:
+        - Objeto Configuracion instanciado.
+    """
+    def __init__(self, tamanno, montoPorHora, tiempoGracia, tieneElectrico, listaObjetos):
+        self.tamanno         = tamanno
+        self.montoPorHora   = montoPorHora
+        self.tiempoGracia   = tiempoGracia
+        self.tieneElectrico = tieneElectrico
+        self.listaObjetos   = listaObjetos
+
+    def obtenerTamanno(self):
+        """
+        Funcionalidad:
+            Retorna el tamanno del estacionamiento.
+        Entrada:
+            - (None)
+        Salida:
+            - tamano (int): Cantidad de espacios del estacionamiento.
+        """
+        return self.tamanno
+
+    def obtenerMontoPorHora(self):
+        """
+        Funcionalidad:
+            Retorna el monto cobrado por hora.
+        Entrada:
+            - (None)
+        Salida:
+            - montoPorHora (int): Monto en colones por hora.
+        """
+        return self.montoPorHora
+
+    def obtenerTiempoGracia(self):
+        """
+        Funcionalidad:
+            Retorna el tiempo de gracia en minutos.
+        Entrada:
+            - (None)
+        Salida:
+            - tiempoGracia (int): Minutos de gracia antes de cobrar.
+        """
+        return self.tiempoGracia
+
+    def obtenerTieneElectrico(self):
+        """
+        Funcionalidad:
+            Retorna si el parqueo tiene espacio para vehiculo electrico.
+        Entrada:
+            - (None)
+        Salida:
+            - tieneElectrico (bool): True si tiene espacio electrico.
+        """
+        return self.tieneElectrico
+
+    def obtenerListaObjetos(self):
+        """
+        Funcionalidad:
+            Retorna la lista de objetos Estacionamiento.
+        Entrada:
+            - (None)
+        Salida:
+            - listaObjetos (list): Lista de objetos Estacionamiento.
+        """
+        return self.listaObjetos
+
+    def asignarTamanno(self, nuevoTamanno):
+        """
+        Funcionalidad:
+            Asigna el tamanno del estacionamiento.
+        Entrada:
+            - nuevoTamano (int): Nueva cantidad de espacios.
+        Salida:
+            - (None)
+        """
+        self.tamanno = nuevoTamanno
+
+    def asignarMontoPorHora(self, nuevoMonto):
+        """
+        Funcionalidad:
+            Asigna el monto cobrado por hora.
+        Entrada:
+            - nuevoMonto (int): Nuevo monto en colones por hora.
+        Salida:
+            - (None)
+        """
+        self.montoPorHora = nuevoMonto
+
+    def asignarTiempoGracia(self, nuevoTiempoGracia):
+        """
+        Funcionalidad:
+            Asigna el tiempo de gracia en minutos.
+        Entrada:
+            - nuevoTiempoGracia (int): Nuevos minutos de gracia.
+        Salida:
+            - (None)
+        """
+        self.tiempoGracia = nuevoTiempoGracia
+
+    def asignarTieneElectrico(self, nuevoTieneElectrico):
+        """
+        Funcionalidad:
+            Asigna si el parqueo tiene espacio para vehiculo electrico.
+        Entrada:
+            - nuevoTieneElectrico (bool): True si tiene espacio electrico.
+        Salida:
+            - (None)
+        """
+        self.tieneElectrico = nuevoTieneElectrico
+
+    def asignarListaObjetos(self, nuevaLista):
+        """
+        Funcionalidad:
+            Asigna la lista de objetos Estacionamiento.
+        Entrada:
+            - nuevaLista (list): Nueva lista de objetos Estacionamiento.
+        Salida:
+            - (None)
+        """
+        self.listaObjetos = nuevaLista
+
+    def mostrarTodo(self):
+        """
+        Funcionalidad:
+            Imprime en consola todos los atributos de la configuracion
+            de forma legible para el usuario.
+        Entrada:
+            - (None)
+        Salida:
+            - (None)
+        """
+        print(f"  Tamanno            : {self.tamanno}")
+        print(f"  Monto por hora     : {self.montoPorHora}")
+        print(f"  Tiempo de gracia   : {self.tiempoGracia} minutos")
+        print(f"  Espacio electrico  : {"Si" if self.tieneElectrico else "No"}")
+        print(f"  Objetos en base de datos      : {len(self.listaObjetos)}")
