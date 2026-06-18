@@ -104,7 +104,10 @@ def controladorGuardarConfiguracion(entradaTamanno, entradaMonto, entradaGracia,
         guardarConfiguracion(config)
         ventana.destroy()
         if esInicial:
-                controladorLlenadoMasivo()
+            listaVacia = crearListaVacia(config)
+            config.asignarListaObjetos(listaVacia)
+            guardarBaseDatos(config.obtenerListaObjetos())
+            abrirVentanaPrincipal()
         else:
             messagebox.showinfo("Exito", "Configuracion actualizada correctamente.")
 
@@ -126,7 +129,10 @@ def abrirVentanaPrincipal():
              font=("Arial", 16, "bold")).pack(pady=15)
     # Obtener vehiculos
     tk.Button(ventana, text="1. Obtener vehiculos",
-              width=30, height=2).pack(pady=5)
+          width=30, height=2,
+          command=lambda: controladorLlenadoMasivo()# uso lambda para poder pasar parametros a la funcion del comando, sin lambda tkinter ejecutaria 
+        #la funcion al momento de crear el boton y no cuando el usuario haga clic
+          ).pack(pady=5)
     # Ver estacionamiento
     marcoVer = tk.LabelFrame(ventana, text="2. Ver estacionamiento", padx=10, pady=5)
     marcoVer.pack(pady=5, padx=20, fill="x")
@@ -183,7 +189,6 @@ def abrirVentanaConfiguracion(esInicial=False):
     if not esInicial:
         entradaMonto.insert(0, str(config.obtenerMontoPorHora()))
 
-
     tk.Label(ventana, text="Tiempo de gracia (minutos):").grid(row=3, column=0, sticky="e", padx=10, pady=5)
     entradaGracia = tk.Entry(ventana)
     entradaGracia.grid(row=3, column=1, padx=10)
@@ -195,7 +200,7 @@ def abrirVentanaConfiguracion(esInicial=False):
                    variable=varElectrico).grid(row=4, column=0, columnspan=2, pady=5)
 
     tk.Button(ventana, text="Guardar",
-              command=lambda: controladorGuardarConfiguracion(
+              command=lambda: controladorGuardarConfiguracion( 
                   entradaTamano, entradaMonto, entradaGracia,
                   varElectrico, ventana, esInicial)
               ).grid(row=5, column=0, pady=10)
@@ -206,6 +211,51 @@ def abrirVentanaConfiguracion(esInicial=False):
         ventana.grab_set()
         ventana.wait_window()
 
+def controladorLlenadoMasivo():
+    """
+    Funcionalidad:
+        Solicita al usuario la cantidad de vehiculos a asignar,
+        los asigna aleatoriamente en espacios libres, genera vouchers
+        y guarda la BD.
+    Entrada:
+        - (None)
+    Salida:
+        - (None)
+    """
+    ocupados         = calcularEspaciosOcupados(config.obtenerListaObjetos())
+    topeMaximoMasivo = calcularEspaciosDisponibles(config)
+    espaciosLibres   = topeMaximoMasivo - ocupados
+    if espaciosLibres <= 0:
+        messagebox.showwarning("Aviso", "No hay espacios disponibles para asignar vehiculos.")
+        return
+    ventana = tk.Toplevel()
+    ventana.title("Obtener vehiculos")
+    ventana.resizable(False, False)
+    tk.Label(ventana, text=f"Espacios disponibles: {espaciosLibres}",
+             font=("Arial", 11)).grid(row=0, column=0, columnspan=2, pady=10, padx=10)
+    tk.Label(ventana, text="Cuantos vehiculos desea asignar:",
+             font=("Arial", 11)).grid(row=1, column=0, padx=10, pady=5)
+    entradaCantidad = tk.Entry(ventana)
+    entradaCantidad.grid(row=1, column=1, padx=10)
+    def confirmar():
+        valor = entradaCantidad.get()
+        if not valor.isdigit():
+            messagebox.showerror("Error", "Ingrese un numero entero valido.")
+            return
+        cantidad = int(valor)
+        if cantidad <= 0 or cantidad > espaciosLibres:
+            messagebox.showerror("Error", f"Ingrese un numero entre 1 y {espaciosLibres}.")
+            return
+        ventana.destroy()
+        datosJson    = cargarJson()
+        listaObjetos = asignarVehiculosMasivos(config, datosJson, config.obtenerMontoPorHora(), cantidad)
+        config.asignarListaObjetos(listaObjetos)
+        generarVouchersLlenadoMasivo(config.obtenerListaObjetos(), config)
+        guardarBaseDatos(config.obtenerListaObjetos())
+        guardarConfiguracion(config)
+        messagebox.showinfo("Exito", f"{cantidad} vehiculos asignados y vouchers generados.")
+    tk.Button(ventana, text="Confirmar", command=confirmar).grid(row=2, column=0, pady=10)
+    tk.Button(ventana, text="Cancelar", command=ventana.destroy).grid(row=2, column=1, pady=10)
 
 # programa principal
 raiz = tk.Tk()

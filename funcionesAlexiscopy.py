@@ -60,8 +60,8 @@ def verEstacionamiento(tamaño, baseDatos):
                 if indice==tamaño:
                     break
                 for carro in baseDatos:
-                    if int(carro.obtenerEstadia()[0])==indice:
-                        bandera=True
+                    if int(carro.obtenerEstadia()[0]) == indice and carro.obtenerInfo()[0] != "":
+                        bandera = True
                 borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
                 borde.grid(row=i,column=o,padx=10,pady=80)
                 #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria

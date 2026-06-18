@@ -8,6 +8,14 @@ import json
 import random
 from datetime import datetime, timedelta
 from clase import Estacionamiento
+import qrcode
+import os
+"""
+uso os para interactuar con el sistema de archivos en especifico
+os.path.exists que verifica si la carpeta vouchers existe, os.makedirs que crea la carpeta vouchers si no existe, os.path.join que une rutas de 
+forma compatible con cualquier sistema operativo. Pickle no puede realizar estas operaciones ya que solo sirve para serializar y guardar objetos Python en memoria secundaria
+"""
+from fpdf import FPDF
 
 marcasValidas = ["Toyota", "Honda", "Hyundai", "Kia", "Nissan",
                   "Suzuki", "Mitsubishi", "Mazda", "Ford", "Chevrolet",
@@ -151,34 +159,53 @@ def generarFechaEntradaAleatoria():
 def construirDiccionarioRestringido(datosJson, cantidadVehiculos, montoPorHora):
     """
     Funcionalidad:
-        Toma los primeros registros según la cantidad indicada del JSON,
-        extrae únicamente los campos requeridos y construye el diccionario
-        con la estructura definida por la especificación.
+        Construye el diccionario con la cantidad indicada de vehiculos.
+        Si el JSON tiene menos registros que la cantidad solicitada,
+        genera datos aleatorios para completar.
     Entrada:
         - datosJson (list): Lista de registros crudos del archivo JSON.
-        - cantidadVehiculos (int): Cantidad de vehículos a procesar.
+        - cantidadVehiculos (int): Cantidad de vehiculos a procesar.
         - montoPorHora (int): Monto parametrizado para el cobro por hora.
     Salida:
         - diccionario (dict): Diccionario {placa: [marca, color, tipo, ubicacion,
                               fechaHoraEntrada, fechaHoraSalida, monto, tipoPago]}.
     """
-    diccionario = {}
-    contador = 1
+    diccionario  = {}
+    contador     = 1
+    indiceJson   = 0
+    while contador <= cantidadVehiculos:
+        if indiceJson < len(datosJson):
+            registro = datosJson[indiceJson]
+            placa    = extraerPlaca(registro, contador)
+            marca    = extraerMarca(registro)
+            color    = extraerColor(registro)
+            tipo     = extraerTipo(registro)
+        else:
+            placa = f"CR{contador:04d}"
+            marca = random.randint(0, len(marcasValidas) - 1)
+            color = random.randint(0, len(coloresValidos) - 1)
+            tipo  = random.randint(0, len(tiposValidos) - 1)
+        if placa in diccionario:
+            placa = placa + str(contador)
 
-    for registro in datosJson[:cantidadVehiculos]:
+        ubicacion        = str(contador)
+        fechaHoraEntrada = generarFechaEntradaAleatoria()
+        fechaHoraSalida  = ""
+        monto            = montoPorHora
+        tipoPago         = 0
 
-        placa            = extraerPlaca(registro, contador)  # clave
-        marca            = extraerMarca(registro)            # [0]
-        color            = extraerColor(registro)            # [1]
-        tipo             = extraerTipo(registro)             # [2]
-        ubicacion        = str(contador)                     # [3]
-        fechaHoraEntrada = generarFechaEntradaAleatoria()    # [4]
-        fechaHoraSalida  = ""                                # [5]
-        monto            = montoPorHora                      # [6] parametrizado
-        tipoPago         = 0                                 # [7] 0=pendiente, 1=efectivo, 2=SINPE, 3=tarjeta
-
-        diccionario[placa] = [marca, color,tipo, ubicacion, fechaHoraEntrada, fechaHoraSalida, monto, tipoPago ]
-        contador += 1
+        diccionario[placa] = [
+            marca,             # [0]
+            color,             # [1]
+            tipo,              # [2]
+            ubicacion,         # [3]
+            fechaHoraEntrada,  # [4]
+            fechaHoraSalida,   # [5]
+            monto,             # [6]
+            tipoPago           # [7]
+        ]
+        contador  += 1
+        indiceJson += 1
     return diccionario
 
 
@@ -216,4 +243,210 @@ def convertirDiccionarioAObjetos(diccionario):
         listaObjetos.append(objetoEstacionamiento)
         identificador += 1
 
+    return listaObjetos
+
+# registro masivo
+
+def calcularEspaciosDisponibles(config):
+    """
+    Funcionalidad:
+        Calcula cuantos espacios generales estan disponibles para el llenado masivo
+        respetando especiales, electrico y el 5% libre obligatorio.
+    Entrada:
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - topeMaximoMasivo (int): Cantidad maxima de vehiculos a asignar masivamente.
+    """
+    espaciosEspeciales  = max(2, int(config.obtenerTamanno() * 0.05))
+    espaciosDisponibles = config.obtenerTamanno() - espaciosEspeciales
+    if config.obtenerTieneElectrico():
+        espaciosDisponibles -= 1
+    topeMaximoMasivo = espaciosDisponibles - int(espaciosDisponibles * 0.05)
+    return topeMaximoMasivo
+
+def calcularEspaciosOcupados(listaObjetos):
+    """
+    Funcionalidad:
+        Cuenta cuantos espacios generales ya estan ocupados en la lista de objetos.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+    Salida:
+        - ocupados (int): Cantidad de espacios con vehiculo asignado.
+    """
+    ocupados = 0
+    for objeto in listaObjetos:
+        if objeto.obtenerInfo()[0] != "":
+            ocupados += 1
+    return ocupados
+
+def obtenerUbicacionesLibres(listaObjetos, config):
+    """
+    Funcionalidad:
+        Retorna una lista con los indices de los espacios generales libres,
+        excluyendo los especiales y el electrico.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - ubicacionesLibres (list): Lista de indices disponibles para asignar.
+    """
+    espaciosEspeciales = max(2, int(config.obtenerTamanno() * 0.05))
+    inicioGenerales    = espaciosEspeciales
+    if config.obtenerTieneElectrico():
+        inicioGenerales += 1
+
+    ubicacionesLibres = []
+    indice = inicioGenerales
+    while indice < len(listaObjetos):
+        objeto = listaObjetos[indice]
+        if objeto.obtenerInfo()[0] == "":
+            ubicacionesLibres.append(indice)
+        indice += 1
+    return ubicacionesLibres
+
+def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada):
+    """
+    Funcionalidad:
+        Asigna la cantidad solicitada de vehiculos a espacios generales libres
+        del parqueo, respetando el tope maximo masivo.
+    Entrada:
+        - config (Configuracion): Objeto con la configuracion del sistema.
+        - datosJson (list): Lista de registros del archivo JSON.
+        - montoPorHora (int): Monto parametrizado por hora.
+        - cantidadSolicitada (int): Cantidad de vehiculos que el usuario quiere asignar.
+    Salida:
+        - listaObjetos (list): Lista de objetos actualizada con los nuevos vehiculos.
+    """
+    listaObjetos      = config.obtenerListaObjetos()
+    topeMaximoMasivo  = calcularEspaciosDisponibles(config)
+    ocupados          = calcularEspaciosOcupados(listaObjetos)
+    espaciosALlenar   = topeMaximoMasivo - ocupados
+    ubicacionesLibres = obtenerUbicacionesLibres(listaObjetos, config)
+    if espaciosALlenar <= 0:
+        print("No hay espacios disponibles para llenar masivamente.")
+        return listaObjetos
+    if cantidadSolicitada < espaciosALlenar:
+        espaciosALlenar = cantidadSolicitada
+    random.shuffle(ubicacionesLibres)
+    diccionario = construirDiccionarioRestringido(datosJson, espaciosALlenar, montoPorHora)
+    placas      = list(diccionario.keys())
+    indiceVehiculo  = 0
+    indiceUbicacion = 0
+    while indiceVehiculo < len(placas) and indiceUbicacion < len(ubicacionesLibres):
+        placa         = placas[indiceVehiculo]
+        datosVehiculo = diccionario[placa]
+        posicion      = ubicacionesLibres[indiceUbicacion]
+        objeto        = listaObjetos[posicion]
+        objeto.asignarInfo((placa, datosVehiculo[0], datosVehiculo[1], datosVehiculo[2]))
+        objeto.asignarEstadia([str(posicion + 1), datosVehiculo[4], datosVehiculo[5]])
+        objeto.asignarPago((datosVehiculo[6], datosVehiculo[7]))
+        indiceVehiculo  += 1
+        indiceUbicacion += 1
+    return listaObjetos
+
+def generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR):
+    """
+    Funcionalidad:
+        Genera un codigo QR con la informacion del vehiculo y lo guarda en disco.
+    Entrada:
+        - placa (str): Placa del vehiculo.
+        - marca (str): Marca del vehiculo en texto.
+        - tipo (str): Tipo del vehiculo en texto.
+        - fechaHoraEntrada (str): Fecha y hora de entrada del vehiculo.
+        - rutaQR (str): Ruta donde se guarda la imagen del QR.
+    Salida:
+        - (None)
+    """
+    contenidoQR = f"{placa}-{marca}-{tipo}-{fechaHoraEntrada}"
+    imagenQR    = qrcode.make(contenidoQR)
+    imagenQR.save(rutaQR)
+
+
+def generarVoucher(objeto, config):
+    """
+    Funcionalidad:
+        Genera un voucher en PDF con la informacion del vehiculo estacionado
+        y un codigo QR con los datos principales.
+    Entrada:
+        - objeto (Estacionamiento): Objeto con la informacion del vehiculo.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - (None)
+    """
+    placa            = objeto.obtenerInfo()[0]
+    marcaIndice      = objeto.obtenerInfo()[1]
+    colorIndice      = objeto.obtenerInfo()[2]
+    tipoIndice       = objeto.obtenerInfo()[3]
+    fechaHoraEntrada = objeto.obtenerEstadia()[1]
+    ubicacion        = objeto.obtenerEstadia()[0]
+
+    marca = marcasValidas[marcaIndice]
+    color = coloresValidos[colorIndice]
+    tipo  = tiposValidos[tipoIndice]
+
+    fechaFormato = fechaHoraEntrada.replace("/", "-").replace(" ", "_").replace(":", "")
+    nombrePdf    = f"voucher_{placa}_{fechaFormato}.pdf"
+    nombreQR     = f"qr_{placa}_{fechaFormato}.png"
+    if not os.path.exists("vouchers"):
+        os.makedirs("vouchers")
+    rutaPdf = os.path.join("vouchers", nombrePdf)
+    rutaQR  = os.path.join("vouchers", nombreQR)
+    generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", "B", 20)
+    pdf.cell(0, 15, "Voucher de Estacionamiento", ln=True, align="C")
+    pdf.ln(5)
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 10, "Informacion del vehiculo", ln=True)
+    pdf.ln(3)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.cell(0, 8, f"Placa          : {placa}",            ln=True)
+    pdf.cell(0, 8, f"Marca          : {marca}",            ln=True)
+    pdf.cell(0, 8, f"Color          : {color}",            ln=True)
+    pdf.cell(0, 8, f"Tipo           : {tipo}",             ln=True)
+    pdf.cell(0, 8, f"Ubicacion      : {ubicacion}",        ln=True)
+    pdf.cell(0, 8, f"Hora entrada   : {fechaHoraEntrada}", ln=True)
+    pdf.cell(0, 8, f"Monto por hora : {config.obtenerMontoPorHora()} colones", ln=True)
+    pdf.image(rutaQR, x=140, y=40, w=60, h=60)
+    pdf.output(rutaPdf)
+
+
+def generarVouchersLlenadoMasivo(listaObjetos, config):
+    """
+    Funcionalidad:
+        Recorre la lista de objetos y genera un voucher en PDF
+        por cada vehiculo que tenga placa asignada.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - (None)
+    """
+    for objeto in listaObjetos:
+        if objeto.obtenerInfo()[0] != "":
+            generarVoucher(objeto, config)
+    print("Vouchers generados en la carpeta 'vouchers'.")
+
+def crearListaVacia(config):
+    """
+    Funcionalidad:
+        Crea la lista de objetos Estacionamiento con todos los espacios
+        vacios segun el tamanno configurado.
+    Entrada:
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - listaObjetos (list): Lista de objetos Estacionamiento vacios.
+    """
+    listaObjetos = []
+    contador     = 1
+    while contador <= config.obtenerTamanno():
+        objetoEstacionamiento = Estacionamiento(
+            identificador = str(contador),
+            info          = ("", 0, 0, 0),
+            estadia       = [str(contador), "", ""],
+            pago          = (0, 0)
+        )
+        listaObjetos.append(objetoEstacionamiento)
+        contador += 1
     return listaObjetos
