@@ -279,5 +279,5 @@ class Configuracion:
         print(f"  Tamanno            : {self.tamanno}")
         print(f"  Monto por hora     : {self.montoPorHora}")
         print(f"  Tiempo de gracia   : {self.tiempoGracia} minutos")
-        print(f"  Espacio electrico  : {"Si" if self.tieneElectrico else "No"}")
+        print(f"  Espacio electrico  : {'Si' if self.tieneElectrico else 'No'}")
         print(f"  Objetos en base de datos      : {len(self.listaObjetos)}")
