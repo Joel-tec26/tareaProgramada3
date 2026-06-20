@@ -143,7 +143,7 @@ def abrirVentanaPrincipal():
     marcoReportes = tk.LabelFrame(ventana, text="3. Reportes", padx=10, pady=5)
     marcoReportes.pack(pady=5, padx=20, fill="x")
     tk.Button(marcoReportes, text="a. Cierre diario",               width=28).pack(pady=3)
-    tk.Button(marcoReportes, text="b. Cierre por tipo de pago",     width=28).pack(pady=3)
+    tk.Button(marcoReportes, text="b. Cierre por tipo de pago",     width=28, command=lambda:generarReporteTipoPago(baseDatos=config.obtenerListaObjetos())).pack(pady=3)
     tk.Button(marcoReportes, text="c. Exportar cierre diario a CSV", width=28).pack(pady=3)
     # Configuracion 
     marcoConfig = tk.LabelFrame(ventana, text="4. Configuracion", padx=10, pady=5)

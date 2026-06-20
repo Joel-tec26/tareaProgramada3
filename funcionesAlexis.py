@@ -2,59 +2,14 @@ from funionesJoel import *
 import tkinter as tk
 from tkinter import ttk
 import pickle
+import datetime
 
-def observarEspacio(baseDatos, num, valor, config):
-    ventana = tk.Tk()
-    ventana.title(f"Estacionamiento: {num}")
-    ventana.geometry("300x300")
-    def opcionesPago():
-        menupago1 = tk.Tk()
-        menupago1.title(f"Seleccion de tipo de pago")
-        menupago1.geometry("400x150")
-        tk.Label(menupago1, text=f"Tipo de Pago", font=("Arial", 20, "bold")).grid(row=0, column=0, padx=10, pady=5)
-        tk.Label(menupago1,text="Seleccione el tipo de pago: ").grid(row=1, column=0, padx=10, pady=5)
-        tipoPago=ttk.Combobox(menupago1, values=["Efectivo","Sinpe","Targeta"],state="readonly")
-        tipoPago.current(0)
-        tipoPago.bind("<<ComboboxSelected>>",pagar)
-        tk.Button(menupago1, text="Pagar", width=8, height=3, bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff", command=lambda:pagar()).grid(row=5, column=1, padx=10, pady=5)
-        def pagar(event):
-            menupago2 = tk.Tk()
-            menupago2.title(f"pago")
-            menupago2.geometry("300x300")
-            seleccion = tipoPago.get()
-            generarVoucher(baseDatos[num-1],config)
-            baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],])
-            menupago2.mainloop()
-        menupago1.mainloop()
-    if not valor:
-        tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
-        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
-        tk.Entry(ventana, font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
-        tk.Entry(ventana, font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
-        tk.Entry(ventana, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
-        tk.Entry(ventana, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-        tk.Button(ventana, text="Estacionar", font=("Arial", 10, "bold"), width=8, height=3, bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
-    else:
-        tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20)).grid(row=0, column=2, padx=10, pady=5)
-        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{marcasValidas[baseDatos[num-1].obtenerInfo()[1]]}", font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{coloresValidos[baseDatos[num-1].obtenerInfo()[2]]}", font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-        tk.Button(ventana, text="Pagar",font=("Arial", 10, "bold"), width=8, height=3,bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", command=lambda: opcionesPago(), activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
-    tk.Button(ventana, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: ventana.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
-    ventana.mainloop()
-    return
+
 
 def verEstacionamiento(tamaño, baseDatos, config):
     """
     """
+    print("a")
     ventana = tk.Toplevel()
     ventana.title("Estacionamiento")
     ventana.geometry("1020x720")
@@ -72,7 +27,69 @@ def verEstacionamiento(tamaño, baseDatos, config):
             generarUI(baseDatos,pagina-1)
             return pagina-1
         print("Error al tratar de llamar esta funcion, uso de modo incorrecto")
+    def observarEspacio(baseDatos, num, valor, config):
+        verEspacio = tk.Tk()
+        verEspacio.title(f"Estacionamiento: {num}")
+        verEspacio.geometry("300x300")
+        def opcionesPago():
+            menupago1 = tk.Tk()
+            menupago1.title(f"Seleccion de tipo de pago")
+            menupago1.geometry("400x150")
+            tk.Label(menupago1, text=f"Tipo de Pago", font=("Arial", 20, "bold")).grid(row=0, column=0, padx=10, pady=5)
+            tk.Label(menupago1,text="Seleccione el tipo de pago: ").grid(row=1, column=0, padx=10, pady=5)
+            tipoPago=ttk.Combobox(menupago1, values=["Efectivo","Sinpe","Targeta"],state="readonly")
+            tipoPago.grid(row=1,column=1)
+            tipoPago.current(0)
+            tk.Button(menupago1, text="Pagar", width=8, height=3, cursor="hand2", command=lambda:pagar()).grid(row=5, column=1, padx=10, pady=5)
+            def pagar():
+                def cerrarPestannas():
+                    verEspacio.destroy()
+                    menupago1.destroy()
+                    menupago2.destroy()
+                    generarUI(baseDatos,pagina=0)
+                menupago2 = tk.Tk()
+                menupago2.title(f"pago")
+                menupago2.geometry("250x100")
+                seleccion = tipoPago.get()
+                if seleccion=="Efectivo":
+                    opcion=1
+                elif seleccion=="Sinpe":
+                    opcion=2
+                elif seleccion=="Targeta":
+                    opcion=3
+                baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],datetime.datetime.now().strftime("%d/%m/%Y %H:%M")])
+                baseDatos[num-1].asignarPago((baseDatos[num-1].obtenerPago()[0],opcion))
+                generarVoucher(baseDatos[num-1],config)
+                tk.Label(menupago2, text=f"Pago realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+                tk.Button(menupago2, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+            menupago1.mainloop()
+        if not valor:
+            tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=0, pady=5)
+            tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+            tk.Button(verEspacio, text="Estacionar", font=("Arial", 10, "bold"), width=8, height=3, bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
+        else:
+            tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
+            tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{marcasValidas[baseDatos[num-1].obtenerInfo()[1]]}", font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{coloresValidos[baseDatos[num-1].obtenerInfo()[2]]}", font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+            tk.Button(verEspacio, text="Pagar",font=("Arial", 10, "bold"), width=8, height=3,bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", command=lambda: opcionesPago(), activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
+        tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: ventana.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
+        verEspacio.mainloop()
+        return
     def generarUI(baseDatos, pagina=0):
+        #lo que hago acá, es borrar widgets ya que c
         for widget in marcoEstacionamientos.winfo_children():
             widget.destroy()
         for i in range(2):
@@ -114,3 +131,38 @@ def verEstacionamiento(tamaño, baseDatos, config):
                 tk.Button(borde, text="Siguente" if i==0 else "Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
     generarUI(baseDatos)
 
+
+def asignarInfo(baseDatos,tipo):
+    xml=""
+    for carro in baseDatos:
+        print(carro.obtenerPago()[1])
+        if carro.obtenerPago()[1]==tipo:
+            xml+=f"\t\t<carro>\n"
+            xml+=f"\t\t\t<placa>{carro.obtenerInfo()[0]}</placa>\n"
+            xml+=f"\t\t\t<marca>{carro.obtenerInfo()[1]}</marca>\n"
+            xml+=f"\t\t\t<color>{carro.obtenerInfo()[2]}</color>\n"
+            xml+=f"\t\t\t<tipo>{carro.obtenerInfo()[3]}</tipo>\n"
+            xml+=f"\t\t\t<ubicacion>{carro.obtenerEstadia()[0]}</ubicacion>\n"
+            xml+=f"\t\t\t<fechaHoraEntrada>{carro.obtenerEstadia()[1]}</fechaHoraEntrada>\n"
+            xml+=f"\t\t\t<fechaHoraSalida>{carro.obtenerEstadia()[2]}</fechaHoraSalida>\n"
+            xml+=f"\t\t</carro>\n"
+    return xml
+
+def generarReporteTipoPago(baseDatos):
+    efectivo=asignarInfo(baseDatos,1)
+    sinpe=asignarInfo(baseDatos,2)
+    targeta=asignarInfo(baseDatos,3)
+    xml="<reporte>\n"
+    xml+="\t<efectivo>\n"
+    xml+=efectivo
+    xml+="\t</efectivo>\n"
+    xml+="\t<sinpe>\n"
+    xml+=sinpe
+    xml+="\t<sinpe>\n"
+    xml+="\t<targeta>\n"
+    xml+=targeta
+    xml+="\t</targeta>\n"
+    xml+="</reporte>"
+    archivo = open(f"Reporte-Por-Tipo-De-Pago.xml","w")
+    archivo.write(xml)
+    return
