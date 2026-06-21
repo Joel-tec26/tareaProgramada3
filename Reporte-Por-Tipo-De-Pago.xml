@@ -1,8 +1,35 @@
 <reporte>
 	<efectivo>
+		<carro>
+			<placa>CR0021</placa>
+			<marca>6</marca>
+			<color>10</color>
+			<tipo>4</tipo>
+			<ubicacion>9</ubicacion>
+			<fechaHoraEntrada>18/06/2026 15:51</fechaHoraEntrada>
+			<fechaHoraSalida>20/06/2026 20:07</fechaHoraSalida>
+		</carro>
 	</efectivo>
 	<sinpe>
+		<carro>
+			<placa>WA1DKBFP</placa>
+			<marca>8</marca>
+			<color>10</color>
+			<tipo>2</tipo>
+			<ubicacion>4</ubicacion>
+			<fechaHoraEntrada>18/06/2026 13:16</fechaHoraEntrada>
+			<fechaHoraSalida>20/06/2026 20:07</fechaHoraSalida>
+		</carro>
 	<sinpe>
 	<targeta>
+		<carro>
+			<placa>CR0044</placa>
+			<marca>12</marca>
+			<color>8</color>
+			<tipo>6</tipo>
+			<ubicacion>15</ubicacion>
+			<fechaHoraEntrada>18/06/2026 17:03</fechaHoraEntrada>
+			<fechaHoraSalida>20/06/2026 20:07</fechaHoraSalida>
+		</carro>
 	</targeta>
 </reporte>

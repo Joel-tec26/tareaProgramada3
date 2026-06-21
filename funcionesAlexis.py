@@ -3,10 +3,11 @@ import tkinter as tk
 from tkinter import ttk
 import pickle
 import datetime
+from manejoArchivos import *
 
 
 
-def verEstacionamiento(tamaño, baseDatos, config):
+def verEstacionamiento(tamanno, baseDatos, config):
     """
     """
     print("a")
@@ -60,6 +61,7 @@ def verEstacionamiento(tamaño, baseDatos, config):
                 baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],datetime.datetime.now().strftime("%d/%m/%Y %H:%M")])
                 baseDatos[num-1].asignarPago((baseDatos[num-1].obtenerPago()[0],opcion))
                 generarVoucher(baseDatos[num-1],config)
+                guardarBaseDatos(baseDatos)
                 tk.Label(menupago2, text=f"Pago realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
                 tk.Button(menupago2, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
             menupago1.mainloop()
@@ -96,7 +98,7 @@ def verEstacionamiento(tamaño, baseDatos, config):
             for o in range(1,9):
                 indice=o+i*8+pagina*16
                 bandera=False
-                if indice==tamaño:
+                if indice==tamanno:
                     break
                 for carro in baseDatos:
                     if int(carro.obtenerEstadia()[0]) == indice and carro.obtenerInfo()[0] != "" and carro.obtenerEstadia()[2]=="":
@@ -106,9 +108,9 @@ def verEstacionamiento(tamaño, baseDatos, config):
                 #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria
                 #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
                 tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera, config=config), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
-            if indice+1>=tamaño:
-                if 16>=tamaño:
-                    if 8>=tamaño and i==0:
+            if indice+1>=tamanno:
+                if 16>=tamanno:
+                    if 8>=tamanno and i==0:
                         break
                     if i==1:
                         break
@@ -117,8 +119,8 @@ def verEstacionamiento(tamaño, baseDatos, config):
                 tk.Button(borde, text="Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
                 break
             elif pagina==0:
-                if 16>=tamaño:
-                    if 8>=tamaño and i==0:
+                if 16>=tamanno:
+                    if 8>=tamanno and i==0:
                         break
                     if i==1:
                         break
@@ -130,6 +132,7 @@ def verEstacionamiento(tamaño, baseDatos, config):
                 borde.grid(row=i,column=9,padx=80,pady=80)
                 tk.Button(borde, text="Siguente" if i==0 else "Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
     generarUI(baseDatos)
+    return baseDatos
 
 
 def asignarInfo(baseDatos,tipo):
@@ -165,4 +168,7 @@ def generarReporteTipoPago(baseDatos):
     xml+="</reporte>"
     archivo = open(f"Reporte-Por-Tipo-De-Pago.xml","w")
     archivo.write(xml)
+    return
+
+def tamañoEstacionamiento():
     return
