@@ -1,9 +1,23 @@
 from funionesJoel import *
 import tkinter as tk
+from tkinter import messagebox
 
-def observarEspacio(baseDatos, num, valor):
+def observarEspacio(baseDatos, config, num, valor):
+    """
+    Funcionalidad:
+        Abre la ventana para observar un espacio del estacionamiento.
+        Si esta ocupado muestra la informacion del vehiculo y permite pagar.
+        Si esta libre permite estacionar un vehiculo.
+    Entrada:
+        - baseDatos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+        - num (int): Numero del espacio seleccionado.
+        - valor (bool): True si el espacio esta ocupado, False si esta libre.
+    Salida:
+        - (None)
+    """
     ventana = tk.Toplevel()
-    ventana.title(f"Estacionamiento: {num}") #CAMBIAR
+    ventana.title(f"Estacionamiento: {num}")
     ventana.geometry("400x500")
     if not valor:
         tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
@@ -15,23 +29,41 @@ def observarEspacio(baseDatos, num, valor):
         tk.Entry(ventana, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
         tk.Entry(ventana, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-        tk.Button(ventana, text="Estacionar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
+        # se usa lambda para pasar parametros al momento del clic
+        # sin lambda se ejecutaria al crear el boton
+        tk.Button(ventana, text="Estacionar", width=8, height=4, bg="#B3F0FF", bd=0,
+                  command=lambda: estacionarVehiculo(baseDatos, config, num, ventana),
+                  activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
     else:
         tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20)).grid(row=0, column=2, padx=10, pady=5)
         tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerInfo()[0]}", font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
         tk.Label(ventana, text=f"{marcasValidas[baseDatos[num-1].obtenerInfo()[1]]}", font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
         tk.Label(ventana, text=f"{coloresValidos[baseDatos[num-1].obtenerInfo()[2]]}", font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
         tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-        tk.Button(ventana, text="Pagar", width=8, height=4, bg="#B3F0FF", bd=0, activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
-    tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0,command=lambda: ventana.destroy(), activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
+        tk.Label(ventana, text=f"{baseDatos[num-1].obtenerEstadia()[1]}", font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+        tk.Button(ventana, text="Pagar", width=8, height=4, bg="#B3F0FF", bd=0,
+                  activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
+    tk.Button(ventana, text="Regresar", width=8, height=4, bg="#B3F0FF", bd=0,
+              # se usa lambda para pasar parametros al momento del clic
+              # sin lambda se ejecutaria al crear el boton
+              command=lambda: ventana.destroy(),
+              activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=2, padx=10, pady=5)
     return
 
-def verEstacionamiento(tamaño, baseDatos):
+def verEstacionamiento(tamanno, baseDatos, config):
     """
+    Funcionalidad:
+        Abre la ventana principal del estacionamiento con los espacios
+        representados graficamente en verde (libre) o rojo (ocupado).
+    Entrada:
+        - tamanno (int): Tamanno total del estacionamiento.
+        - baseDatos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - (None)
     """
     ventana = tk.Toplevel()
     ventana.title("Estacionamiento")
@@ -39,56 +71,91 @@ def verEstacionamiento(tamaño, baseDatos):
     tk.Label(ventana, text="Ver Estacionamiento", font=("Arial", 20, "bold")).grid(row=0, column=1, padx=10, pady=5)
     marcoEstacionamientos = tk.Frame(ventana)
     marcoEstacionamientos.grid(row=1, column=0, columnspan=3, sticky="w")
-    def CambiarPagina(baseDatos, modo, pagina):
+
+    def cambiarPagina(baseDatos, modo, pagina):
         """
-        Funcionamiento: cambia de pagina dependiendo de que modo se use: 0 para ir a la siguiente pagina, 1 para ir a la anterior
+        Funcionalidad:
+            Cambia de pagina en la vista del estacionamiento.
+            Modo 0 avanza a la siguiente pagina, modo 1 regresa a la anterior.
+        Entrada:
+            - baseDatos (list): Lista de objetos Estacionamiento.
+            - modo (int): 0 para siguiente pagina, 1 para pagina anterior.
+            - pagina (int): Pagina actual.
+        Salida:
+            - pagina (int): Nueva pagina.
         """
-        if modo==0:
-            generarUI(baseDatos,pagina+1)
-            return pagina+1
-        elif modo==1:
-            generarUI(baseDatos,pagina-1)
-            return pagina-1
+        if modo == 0:
+            generarUI(baseDatos, pagina + 1)
+            return pagina + 1
+        elif modo == 1:
+            generarUI(baseDatos, pagina - 1)
+            return pagina - 1
         print("Error al tratar de llamar esta funcion, uso de modo incorrecto")
+
     def generarUI(baseDatos, pagina=0):
+        """
+        Funcionalidad:
+            Genera la interfaz grafica de los espacios del estacionamiento
+            para la pagina indicada.
+        Entrada:
+            - baseDatos (list): Lista de objetos Estacionamiento.
+            - pagina (int): Pagina a mostrar.
+        Salida:
+            - (None)
+        """
         for widget in marcoEstacionamientos.winfo_children():
             widget.destroy()
         for i in range(2):
-            for o in range(1,9):
-                indice=o+i*8+pagina*16
-                bandera=False
-                if indice==tamaño:
+            for o in range(1, 9):
+                indice  = o + i * 8 + pagina * 16
+                bandera = False
+                if indice == tamanno:
                     break
                 for carro in baseDatos:
                     if int(carro.obtenerEstadia()[0]) == indice and carro.obtenerInfo()[0] != "":
                         bandera = True
-                borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
-                borde.grid(row=i,column=o,padx=10,pady=80)
-                #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria
-                #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
-                tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
-            if indice+1>=tamaño:
-                if 16>=tamaño:
-                    if 8>=tamaño and i==0:
+                borde = tk.Frame(marcoEstacionamientos,
+                                 bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
+                borde.grid(row=i, column=o, padx=10, pady=80)
+                # se usa lambda porque es la unica forma de pasar parametros en command,
+                # sin este, el comando se ejecuta solo y usar el boton no serviria.
+                # ademas, asigno variables en el lambda para que cada boton tenga
+                # parametros unicos y no el mismo por ser generados en un for
+                tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"),
+                          width=3, height=3,
+                          bg="#FF5959" if bandera else "#59FF7D",
+                          fg="#ffffff", bd=0,
+                          command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, config, indice, valor=bandera),
+                          activebackground="#FF3F4F" if bandera else "#2EFF74",
+                          cursor="hand2").grid()
+            if indice + 1 >= tamanno:
+                if 16 >= tamanno:
+                    if 8 >= tamanno and i == 0:
                         break
-                    if i==1:
+                    if i == 1:
                         break
                 borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
-                tk.Button(borde, text="Anterior", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B3F0FF", cursor="hand2").grid()
+                borde.grid(row=0, column=9, padx=80, pady=80, sticky="e")
+                tk.Button(borde, text="Anterior", width=8, height=5, bg="#B6FFFB", bd=0,
+                          command=lambda pagina=pagina: cambiarPagina(baseDatos, modo=1, pagina=pagina),
+                          activebackground="#B3F0FF", cursor="hand2").grid()
                 break
-            elif pagina==0:
-                if 16>=tamaño:
-                    if 8>=tamaño and i==0:
+            elif pagina == 0:
+                if 16 >= tamanno:
+                    if 8 >= tamanno and i == 0:
                         break
-                    if i==1:
+                    if i == 1:
                         break
                 borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
-                tk.Button(borde, text="Siguente", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina), activebackground="#B3F0FF", cursor="hand2").grid()
+                borde.grid(row=0, column=9, padx=80, pady=80, sticky="e")
+                tk.Button(borde, text="Siguente", width=8, height=5, bg="#B6FFFB", bd=0,
+                          command=lambda pagina=pagina: cambiarPagina(baseDatos, modo=0, pagina=pagina),
+                          activebackground="#B3F0FF", cursor="hand2").grid()
             else:
                 borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=i,column=9,padx=80,pady=80)
-                tk.Button(borde, text="Siguente" if i==0 else "Anterior", width=8, height=5, bg="#B6FFFB", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B3F0FF", cursor="hand2").grid()
-    generarUI(baseDatos)
+                borde.grid(row=i, column=9, padx=80, pady=80)
+                tk.Button(borde, text="Siguente" if i == 0 else "Anterior", width=8, height=5, bg="#B6FFFB", bd=0,
+                          command=lambda i=i, pagina=pagina: cambiarPagina(baseDatos, modo=0, pagina=pagina) if i == 0 else cambiarPagina(baseDatos, modo=1, pagina=pagina),
+                          activebackground="#B3F0FF", cursor="hand2").grid()
 
+    generarUI(baseDatos)

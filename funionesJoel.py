@@ -10,6 +10,11 @@ from datetime import datetime, timedelta
 from clase import Estacionamiento
 import qrcode
 import os
+from manejoArchivos import guardarBaseDatos
+import tkinter as tk
+from tkinter import messagebox
+
+
 """
 uso os para interactuar con el sistema de archivos en especifico
 os.path.exists que verifica si la carpeta vouchers existe, os.makedirs que crea la carpeta vouchers si no existe, os.path.join que une rutas de 
@@ -450,3 +455,85 @@ def crearListaVacia(config):
         listaObjetos.append(objetoEstacionamiento)
         contador += 1
     return listaObjetos
+
+# estacionar 1 vehiculo 
+def estacionarVehiculo(baseDatos, config, num, ventanaPadre):
+    """
+    Funcionalidad:
+        Abre la ventana para registrar un vehiculo en un espacio libre.
+        Solicita placa, marca, color y tipo, asigna la ubicacion y genera voucher.
+    Entrada:
+        - baseDatos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+        - num (int): Numero del espacio seleccionado.
+        - ventanaPadre (Toplevel): Ventana padre para cerrarla al confirmar.
+    Salida:
+        - (None)
+    """
+
+    ventana = tk.Toplevel()
+    ventana.title(f"Estacionar en espacio {num}")
+    ventana.resizable(False, False)
+    tk.Label(ventana, text=f"Espacio: {num}",
+             font=("Arial", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=10)
+    tk.Label(ventana, text="Placa:", font=("Arial", 10)).grid(row=1, column=0, sticky="e", padx=10, pady=5)
+    entradaPlaca = tk.Entry(ventana, font=("Arial", 10))
+    entradaPlaca.grid(row=1, column=1, padx=10)
+    tk.Label(ventana, text="Marca:", font=("Arial", 10)).grid(row=2, column=0, sticky="e", padx=10, pady=5)
+    marcaVar = tk.StringVar(value=marcasValidas[0])
+    tk.OptionMenu(ventana, marcaVar, *marcasValidas).grid(row=2, column=1, padx=10, sticky="w")
+    tk.Label(ventana, text="Color:", font=("Arial", 10)).grid(row=3, column=0, sticky="e", padx=10, pady=5)
+    colorVar = tk.StringVar(value=coloresValidos[0])
+    tk.OptionMenu(ventana, colorVar, *coloresValidos).grid(row=3, column=1, padx=10, sticky="w")
+    tk.Label(ventana, text="Tipo:", font=("Arial", 10)).grid(row=4, column=0, sticky="e", padx=10, pady=5)
+    tipoVar = tk.StringVar(value=tiposValidos[0])
+    tk.OptionMenu(ventana, tipoVar, *tiposValidos).grid(row=4, column=1, padx=10, sticky="w")
+    horaEntrada = datetime.now().strftime("%d/%m/%Y %H:%M")
+    tk.Label(ventana, text="Hora entrada:", font=("Arial", 10)).grid(row=5, column=0, sticky="e", padx=10, pady=5)
+    entradaHora = tk.Entry(ventana, font=("Arial", 10))
+    entradaHora.grid(row=5, column=1, padx=10)
+    tk.Label(ventana, text="(DD/MM/AAAA HH:MM)", font=("Arial", 8), fg="gray").grid(row=6, column=1, sticky="w", padx=10)
+    def confirmar():
+        placa       = entradaPlaca.get().strip()
+        horaEntrada = entradaHora.get().strip()
+        if placa == "":
+            messagebox.showerror("Error", "La placa no puede estar vacia.")
+            return
+        if horaEntrada == "":
+            messagebox.showerror("Error", "La hora de entrada no puede estar vacia.")
+            return
+        try:
+            datetime.strptime(horaEntrada, "%d/%m/%Y %H:%M")
+        except ValueError:
+            messagebox.showerror("Error", "Formato de hora invalido. Use DD/MM/AAAA HH:MM")
+            return
+        for objeto in baseDatos:
+            if objeto.obtenerInfo()[0] == placa:
+                messagebox.showerror("Error", "Ya existe un vehiculo con esa placa.")
+                return
+        confirmacion = messagebox.askyesno("Confirmar",
+            f"Placa   : {placa}\n"
+            f"Marca   : {marcaVar.get()}\n"
+            f"Color   : {colorVar.get()}\n"
+            f"Tipo    : {tipoVar.get()}\n"
+            f"Entrada : {horaEntrada}\n"
+            f"Espacio : {num}\n\n"
+            f"Confirmar estacionamiento?")
+        if confirmacion:
+            marcaIndice = buscarIndiceEnLista(marcasValidas, marcaVar.get())
+            colorIndice = buscarIndiceEnLista(coloresValidos, colorVar.get())
+            tipoIndice  = buscarIndiceEnLista(tiposValidos,  tipoVar.get())
+            objeto = baseDatos[num - 1]
+            objeto.asignarInfo((placa, marcaIndice, colorIndice, tipoIndice))
+            objeto.asignarEstadia([str(num), horaEntrada, ""])
+            objeto.asignarPago((0, 0))
+            generarVoucher(objeto, config)
+            guardarBaseDatos(baseDatos)
+            messagebox.showinfo("Exito",
+                f"Vehiculo estacionado en espacio {num}.\nVoucher generado en carpeta vouchers.")
+            ventana.destroy()
+            ventanaPadre.destroy()
+    tk.Button(ventana, text="Estacionar", width=10,
+          command=confirmar).grid(row=7, column=0, pady=10)
+    tk.Button(ventana, text="Regresar",
+            command=ventana.destroy).grid(row=7, column=1, pady=10)

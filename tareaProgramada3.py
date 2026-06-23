@@ -137,11 +137,13 @@ def abrirVentanaPrincipal():
     marcoVer = tk.LabelFrame(ventana, text="2. Ver estacionamiento", padx=10, pady=5)
     marcoVer.pack(pady=5, padx=20, fill="x")
     tk.Button(marcoVer, text="a. Observar espacio",
-            width=28,
-            command=lambda: verEstacionamiento(config.obtenerTamanno(), config.obtenerListaObjetos())
-            ).pack(pady=3)
+          width=28,
+          command=lambda: verEstacionamiento(config.obtenerTamanno(), config.obtenerListaObjetos(), config)
+          ).pack(pady=3)
     tk.Button(marcoVer, text="b. Estacionar un vehiculo",
-            width=28).pack(pady=3)
+          width=28,
+          command=lambda: abrirSeleccionEspacio()
+          ).pack(pady=3)
     # Reportes 
     marcoReportes = tk.LabelFrame(ventana, text="3. Reportes", padx=10, pady=5)
     marcoReportes.pack(pady=5, padx=20, fill="x")
@@ -231,7 +233,7 @@ def controladorLlenadoMasivo():
     ventana = tk.Toplevel()
     ventana.title("Obtener vehiculos")
     ventana.resizable(False, False)
-    tk.Label(ventana, text=f"Espacios disponibles: {espaciosLibres}",
+    tk.Label(ventana, text=f"Campos disponibles: {espaciosLibres}",
              font=("Arial", 11)).grid(row=0, column=0, columnspan=2, pady=10, padx=10)
     tk.Label(ventana, text="Cuantos vehiculos desea asignar:",
              font=("Arial", 11)).grid(row=1, column=0, padx=10, pady=5)
@@ -256,6 +258,38 @@ def controladorLlenadoMasivo():
         messagebox.showinfo("Exito", f"{cantidad} vehiculos asignados y vouchers generados.")
     tk.Button(ventana, text="Confirmar", command=confirmar).grid(row=2, column=0, pady=10)
     tk.Button(ventana, text="Cancelar", command=ventana.destroy).grid(row=2, column=1, pady=10)
+
+# estacionar 1 vehiculo 
+def abrirSeleccionEspacio():
+    """
+    Funcionalidad:
+        Abre una ventana para que el usuario seleccione un espacio libre
+        cuando estaciona desde el menu principal sin pasar por el mapa.
+    Entrada:
+        - (None)
+    Salida:
+        - (None)
+    """
+    ubicacionesLibres = obtenerUbicacionesLibres(config.obtenerListaObjetos(), config)
+    if len(ubicacionesLibres) == 0:
+        messagebox.showwarning("Aviso", "No hay espacios libres disponibles.")
+        return
+    ventana = tk.Toplevel()
+    ventana.title("Seleccionar espacio")
+    ventana.resizable(False, False)
+    tk.Label(ventana, text="Seleccione un espacio libre:",
+             font=("Arial", 11)).grid(row=0, column=0, columnspan=2, pady=10, padx=10)
+    numerosLibres = []
+    for indice in ubicacionesLibres:
+        numerosLibres.append(str(indice + 1))
+    espacioVar = tk.StringVar(value=numerosLibres[0])
+    tk.OptionMenu(ventana, espacioVar, *numerosLibres).grid(row=1, column=0, columnspan=2, pady=5)
+    def confirmar():
+        num = int(espacioVar.get())
+        ventana.destroy()
+        estacionarVehiculo(config.obtenerListaObjetos(), config, num, ventana)
+    tk.Button(ventana, text="Continuar", command=confirmar).grid(row=2, column=0, pady=10)
+    tk.Button(ventana, text="Cancelar",  command=ventana.destroy).grid(row=2, column=1, pady=10)
 
 # programa principal
 raiz = tk.Tk()
