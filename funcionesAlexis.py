@@ -94,9 +94,9 @@ def verEstacionamiento(tamanno, baseDatos, config):
         #lo que hago acá, es borrar widgets ya que c
         for widget in marcoEstacionamientos.winfo_children():
             widget.destroy()
-        for i in range(2):
-            for o in range(1,9):
-                indice=o+i*8+pagina*16
+        for i in range(0,3,2):
+            for o in range(1,8):
+                indice=o+i*7+pagina*14
                 bandera=False
                 if indice==tamanno:
                     break
@@ -109,8 +109,8 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
                 tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera, config=config), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
             if indice+1>=tamanno:
-                if 16>=tamanno:
-                    if 8>=tamanno and i==0:
+                if 14>=tamanno:
+                    if 7>=tamanno and i==0:
                         break
                     if i==1:
                         break
@@ -119,8 +119,8 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 tk.Button(borde, text="Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
                 break
             elif pagina==0:
-                if 16>=tamanno:
-                    if 8>=tamanno and i==0:
+                if 14>=tamanno:
+                    if 7>=tamanno and i==0:
                         break
                     if i==1:
                         break
@@ -131,6 +131,9 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
                 borde.grid(row=i,column=9,padx=80,pady=80)
                 tk.Button(borde, text="Siguente" if i==0 else "Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
+            borde = tk.Frame(marcoEstacionamientos, bg="#6EE2FF", padx=5, pady=5)
+            borde.grid(row=i,column=o,padx=10,pady=80)
+            tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF", fg="#000000", bd=0, activebackground="#59DEFF").grid()
     generarUI(baseDatos)
     return baseDatos
 
@@ -170,5 +173,129 @@ def generarReporteTipoPago(baseDatos):
     archivo.write(xml)
     return
 
-def tamañoEstacionamiento():
+def tamannoEstacionamiento(config):
+    ventana = tk.Tk()
+    ventana.title(f"Seleccion de tipo de pago")
+    ventana.geometry("450x150")
+    def validarEntrada():
+        validacion=esNumero(entrada.get())
+        def cambiar():
+            def cerrarPestannas():
+                ventanaCambio.destroy()
+                ventana2.destroy()
+                ventana.destroy()
+            ventanaCambio = tk.Tk()
+            ventanaCambio.title(f"Cambiar Tamaño")
+            ventanaCambio.geometry("250x100")
+            tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+            config.asignarTamanno(int(entrada.get()))
+            guardarConfiguracion(config)
+            tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+        if validacion and entrada.get()!="":
+            ventana2 = tk.Tk()
+            ventana2.title(f"Confirmacion")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
+        else:
+            ventana2 = tk.Tk()
+            ventana2.title(f"Error!")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="continuar", command=lambda: ventana2.destroy()).grid(row=1,column=0,sticky="e")
+        return
+    tk.Label(ventana, text=f"Cambiar tamaño de estacionamiento", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=5)
+    tk.Label(ventana,text="ingrese el nuevo tamaño: ").grid(row=1, column=0, padx=0, pady=5)
+    entrada=tk.Entry(ventana, font=("Arial", 10))
+    entrada.grid(row=1, column=1, padx=0, pady=2)
+    tk.Button(ventana, text="Cambiar", command=validarEntrada).grid(row=2,column=0)
+    tk.Button(ventana, text="Atras", command=lambda:ventana.destroy()).grid(row=2,column=1,sticky="e")
     return
+
+def tiempoGraciaEnMinutos(config):
+    ventana = tk.Tk()
+    ventana.title(f"Seleccion de tipo de pago")
+    ventana.geometry("450x150")
+    def validarEntrada():
+        validacion=esNumero(entrada.get())
+        def cambiar():
+            def cerrarPestannas():
+                ventanaCambio.destroy()
+                ventana2.destroy()
+                ventana.destroy()
+            ventanaCambio = tk.Tk()
+            ventanaCambio.title(f"Cambiar Tiempo de Gracia en Minutos")
+            ventanaCambio.geometry("250x100")
+            tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+            config.asignarTiempoGracia(int(entrada.get()))
+            guardarConfiguracion(config)
+            tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+        if validacion and entrada.get()!="":
+            ventana2 = tk.Tk()
+            ventana2.title(f"Confirmacion")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
+        else:
+            ventana2 = tk.Tk()
+            ventana2.title(f"Error!")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="continuar", command=lambda: ventana2.destroy()).grid(row=1,column=0,sticky="e")
+        return
+    tk.Label(ventana, text=f"Cambiar tiempo de gracia en minutos", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=5)
+    tk.Label(ventana,text="ingrese el nuevo tiempo: ").grid(row=1, column=0, padx=0, pady=5)
+    entrada=tk.Entry(ventana, font=("Arial", 10))
+    entrada.grid(row=1, column=1, padx=0, pady=2)
+    tk.Button(ventana, text="Cambiar", command=validarEntrada).grid(row=2,column=0)
+    tk.Button(ventana, text="Atras", command=lambda:ventana.destroy()).grid(row=2,column=1,sticky="e")
+    return
+
+def montoPorHora(config):
+    ventana = tk.Tk()
+    ventana.title(f"Seleccion de tipo de pago")
+    ventana.geometry("450x150")
+    def validarEntrada():
+        validacion=esNumero(entrada.get())
+        def cambiar():
+            def cerrarPestannas():
+                ventanaCambio.destroy()
+                ventana2.destroy()
+                ventana.destroy()
+            ventanaCambio = tk.Tk()
+            ventanaCambio.title(f"Cambiar Monto por Hora")
+            ventanaCambio.geometry("250x100")
+            tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+            config.asignarMontoPorHora(int(entrada.get()))
+            guardarConfiguracion(config)
+            tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+        if validacion and entrada.get()!="":
+            ventana2 = tk.Tk()
+            ventana2.title(f"Confirmacion")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
+        else:
+            ventana2 = tk.Tk()
+            ventana2.title(f"Error!")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="continuar", command=lambda: ventana2.destroy()).grid(row=1,column=0,sticky="e")
+        return
+    tk.Label(ventana, text=f"Modificar monto por hora", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=5)
+    tk.Label(ventana,text="ingrese el nuevo monto: ").grid(row=1, column=0, padx=0, pady=5)
+    entrada=tk.Entry(ventana, font=("Arial", 10))
+    entrada.grid(row=1, column=1, padx=0, pady=2)
+    tk.Button(ventana, text="Cambiar", command=validarEntrada).grid(row=2,column=0)
+    tk.Button(ventana, text="Atras", command=lambda:ventana.destroy()).grid(row=2,column=1,sticky="e")
+    return
+
+def esNumero(num):
+    try:
+        int(num)
+        return True
+    except:
+        return False

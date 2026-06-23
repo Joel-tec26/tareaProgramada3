@@ -148,9 +148,9 @@ def abrirVentanaPrincipal():
     # Configuracion 
     marcoConfig = tk.LabelFrame(ventana, text="4. Configuracion", padx=10, pady=5)
     marcoConfig.pack(pady=5, padx=20, fill="x")
-    tk.Button(marcoConfig, text="a. Tamanno del estacionamiento",  width=28).pack(pady=3)
-    tk.Button(marcoConfig, text="b. Tiempo de gracia en minutos",  width=28).pack(pady=3)
-    tk.Button(marcoConfig, text="c. Modificar monto por hora",     width=28).pack(pady=3)
+    tk.Button(marcoConfig, text="a. Tamanno del estacionamiento",  width=28, command=lambda:tamannoEstacionamiento(config)).pack(pady=3)
+    tk.Button(marcoConfig, text="b. Tiempo de gracia en minutos",  width=28, command=lambda:tiempoGraciaEnMinutos(config)).pack(pady=3)
+    tk.Button(marcoConfig, text="c. Modificar monto por hora",     width=28, command=lambda:montoPorHora(config)).pack(pady=3)
     #Acerca de 
     tk.Button(ventana, text="5. Acerca de",
               width=30, height=2).pack(pady=5)
@@ -259,4 +259,6 @@ raiz = tk.Tk()
 raiz.withdraw()
 raiz.overrideredirect(True) 
 controladorArranque()
+print(config.obtenerTamanno())
 raiz.mainloop()
+print(config.obtenerTamanno())
