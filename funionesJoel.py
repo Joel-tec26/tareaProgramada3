@@ -537,3 +537,156 @@ def estacionarVehiculo(baseDatos, config, num, ventanaPadre):
           command=confirmar).grid(row=7, column=0, pady=10)
     tk.Button(ventana, text="Regresar",
             command=ventana.destroy).grid(row=7, column=1, pady=10)
+    
+
+#  cierre diario 
+
+def calcularMonto(fechaHoraEntrada, fechaHoraSalida, montoPorHora, tiempoGracia):
+    """
+    Funcionalidad:
+        Calcula el monto a cobrar segun el tiempo de estadía,
+        respetando el tiempo de gracia configurado.
+    Entrada:
+        - fechaHoraEntrada (str): Fecha y hora de entrada en formato DD/MM/AAAA HH:MM.
+        - fechaHoraSalida (str): Fecha y hora de salida en formato DD/MM/AAAA HH:MM.
+        - montoPorHora (int): Monto cobrado por hora en colones.
+        - tiempoGracia (int): Minutos de gracia antes de cobrar.
+    Salida:
+        - monto (int): Monto total a cobrar en colones.
+    """
+    entrada = datetime.strptime(fechaHoraEntrada, "%d/%m/%Y %H:%M")
+    salida  = datetime.strptime(fechaHoraSalida,  "%d/%m/%Y %H:%M")
+
+    diferencia       = salida - entrada
+    minutosTotal     = int(diferencia.total_seconds() / 60)
+
+    if minutosTotal <= tiempoGracia:
+        return 0
+
+    horasCobrar = minutosTotal / 60
+    monto       = int(horasCobrar * montoPorHora)
+    return monto
+
+
+def asignarTipoPagoAleatorio():
+    """
+    Funcionalidad:
+        Asigna un tipo de pago aleatorio entre efectivo, SINPE y tarjeta.
+    Entrada:
+        - (None)
+    Salida:
+        - tipoPago (int): 1=efectivo, 2=SINPE, 3=tarjeta.
+    """
+    return random.randint(1, 3)
+
+
+def convertirTipoPago(tipoPago):
+    """
+    Funcionalidad:
+        Convierte el codigo de tipo de pago a texto legible.
+    Entrada:
+        - tipoPago (int): 1=efectivo, 2=SINPE, 3=tarjeta.
+    Salida:
+        - texto (str): Nombre del tipo de pago.
+    """
+    if tipoPago == 1:
+        return "Efectivo"
+    if tipoPago == 2:
+        return "SINPE"
+    return "Tarjeta"
+
+
+def procesarPendientes(listaObjetos, config):
+    """
+    Funcionalidad:
+        Recorre la lista de objetos y procesa todos los espacios ocupados
+        sin pago registrado. Asigna hora de salida, tipo de pago aleatorio
+        y calcula el monto. Genera la factura de cada uno.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - listaObjetos (list): Lista de objetos actualizada con pagos procesados.
+    """
+    horaSalida = datetime.now().strftime("%d/%m/%Y %H:%M")
+
+    for objeto in listaObjetos:
+        placa    = objeto.obtenerInfo()[0]
+        tipoPago = objeto.obtenerPago()[1]
+
+        if placa != "" and tipoPago == 0:
+            monto    = calcularMonto(
+                objeto.obtenerEstadia()[1],
+                horaSalida,
+                config.obtenerMontoPorHora(),
+                config.obtenerTiempoGracia()
+            )
+            tipoPagoAleatorio = asignarTipoPagoAleatorio()
+
+            objeto.asignarEstadia([
+                objeto.obtenerEstadia()[0],
+                objeto.obtenerEstadia()[1],
+                horaSalida
+            ])
+            objeto.asignarPago((monto, tipoPagoAleatorio))
+            generarFactura(objeto, config)
+
+    return listaObjetos
+
+def generarFactura(objeto, config):
+    """
+    Funcionalidad:
+        Genera una factura en PDF con la informacion completa de la estadia
+        del vehiculo y un codigo QR con los datos principales.
+    Entrada:
+        - objeto (Estacionamiento): Objeto con la informacion del vehiculo.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - (None)
+    """
+    placa            = objeto.obtenerInfo()[0]
+    marcaIndice      = objeto.obtenerInfo()[1]
+    colorIndice      = objeto.obtenerInfo()[2]
+    tipoIndice       = objeto.obtenerInfo()[3]
+    ubicacion        = objeto.obtenerEstadia()[0]
+    fechaHoraEntrada = objeto.obtenerEstadia()[1]
+    fechaHoraSalida  = objeto.obtenerEstadia()[2]
+    monto            = objeto.obtenerPago()[0]
+    tipoPago         = objeto.obtenerPago()[1]
+    marca = marcasValidas[marcaIndice]
+    color = coloresValidos[colorIndice]
+    tipo  = tiposValidos[tipoIndice]
+    fechaFormato = fechaHoraSalida.replace("/", "-").replace(" ", "_").replace(":", "")
+    nombrePdf    = f"factura_{placa}_{fechaFormato}.pdf"
+    nombreQR     = f"qr_factura_{placa}_{fechaFormato}.png"
+    if not os.path.exists("facturas"):
+        os.makedirs("facturas")
+    rutaPdf = os.path.join("facturas", nombrePdf)
+    rutaQR  = os.path.join("facturas", nombreQR)
+    generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_text_color(0, 51, 153)
+    pdf.set_font("Helvetica", "B", 22)
+    pdf.cell(0, 15, "Factura de Estacionamiento", ln=True, align="C")
+    pdf.ln(3)
+    pdf.set_text_color(80, 80, 80)
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.cell(0, 10, "Informacion del vehiculo", ln=True)
+    pdf.ln(2)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.cell(0, 8, f"Placa          : {placa}",                    ln=True)
+    pdf.cell(0, 8, f"Marca          : {marca}",                    ln=True)
+    pdf.cell(0, 8, f"Color          : {color}",                    ln=True)
+    pdf.cell(0, 8, f"Tipo           : {tipo}",                     ln=True)
+    pdf.cell(0, 8, f"Ubicacion      : {ubicacion}",                ln=True)
+    pdf.cell(0, 8, f"Hora entrada   : {fechaHoraEntrada}",         ln=True)
+    pdf.cell(0, 8, f"Hora salida    : {fechaHoraSalida}",          ln=True)
+    pdf.cell(0, 8, f"Tipo de pago   : {convertirTipoPago(tipoPago)}", ln=True)
+    pdf.ln(3)
+    pdf.set_text_color(0, 130, 0)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, f"Total a pagar  : {monto} colones", ln=True)
+    pdf.image(rutaQR, x=140, y=40, w=60, h=60)
+    pdf.output(rutaPdf)
