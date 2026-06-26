@@ -147,7 +147,9 @@ def abrirVentanaPrincipal():
     # Reportes 
     marcoReportes = tk.LabelFrame(ventana, text="3. Reportes", padx=10, pady=5)
     marcoReportes.pack(pady=5, padx=20, fill="x")
-    tk.Button(marcoReportes, text="a. Cierre diario",               width=28).pack(pady=3)
+    tk.Button(marcoReportes, text="a. Cierre diario",
+          width=28,
+          command=controladorCierreDiario).pack(pady=3)
     tk.Button(marcoReportes, text="b. Cierre por tipo de pago",     width=28).pack(pady=3)
     tk.Button(marcoReportes, text="c. Exportar cierre diario a CSV", width=28).pack(pady=3)
     # Configuracion 
@@ -290,6 +292,36 @@ def abrirSeleccionEspacio():
         estacionarVehiculo(config.obtenerListaObjetos(), config, num, ventana)
     tk.Button(ventana, text="Continuar", command=confirmar).grid(row=2, column=0, pady=10)
     tk.Button(ventana, text="Cancelar",  command=ventana.destroy).grid(row=2, column=1, pady=10)
+
+# cierre diario
+
+def controladorCierreDiario():
+    """
+    Funcionalidad:
+        Procesa todos los parqueos pendientes de pago, genera sus facturas,
+        confecciona el reporte de cierre diario y guarda la BD actualizada.
+    Entrada:
+        - (None)
+    Salida:
+        - (None)
+    """
+    confirmacion = messagebox.askyesno("Confirmar",
+        "Se procesaran todos los parqueos pendientes de pago.\n"
+        "Se generaran facturas automaticas y el reporte del dia.\n\n"
+        "Desea continuar?")
+    if not confirmacion:
+        return
+    listaObjetos = procesarPendientes(config.obtenerListaObjetos(), config)
+    config.asignarListaObjetos(listaObjetos)
+    generarReporteCierreDiario(config.obtenerListaObjetos(), config)
+    guardarBaseDatos(config.obtenerListaObjetos())
+    guardarConfiguracion(config)
+    messagebox.showinfo("Exito",
+        "Cierre diario completado.\n"
+        "Facturas generadas en carpeta 'facturas'.\n"
+        "Reporte generado en carpeta 'reportes'.")
+
+
 
 # programa principal
 raiz = tk.Tk()

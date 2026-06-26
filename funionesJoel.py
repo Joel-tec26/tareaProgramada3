@@ -690,3 +690,80 @@ def generarFactura(objeto, config):
     pdf.cell(0, 10, f"Total a pagar  : {monto} colones", ln=True)
     pdf.image(rutaQR, x=140, y=40, w=60, h=60)
     pdf.output(rutaPdf)
+
+
+
+def generarReporteCierreDiario(listaObjetos, config):
+    """
+    Funcionalidad:
+        Genera el reporte del cierre diario en PDF con titulo, fecha,
+        tabla de transacciones, subtotales por tipo de pago y total acumulado.
+        Usa 3 colores y 3 tamannos de letra segun la especificacion.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - (None)
+    """
+    fechaHoy     = datetime.now().strftime("%d/%m/%Y")
+    nombrePdf    = f"cierre_diario_{fechaHoy.replace('/', '-')}.pdf"
+    if not os.path.exists("reportes"):
+        os.makedirs("reportes")
+    rutaPdf = os.path.join("reportes", nombrePdf)
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_text_color(0, 51, 153)
+    pdf.set_font("Helvetica", "B", 22)
+    pdf.cell(0, 15, "Reporte de Cierre Diario", ln=True, align="C")
+    pdf.set_text_color(80, 80, 80)
+    pdf.set_font("Helvetica", "I", 13)
+    pdf.cell(0, 8, f"Fecha: {fechaHoy}", ln=True, align="C")
+    pdf.ln(5)
+    pdf.set_text_color(0, 51, 153)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_fill_color(220, 230, 255)
+    pdf.cell(20,  8, "Ubicac.",    border=1, fill=True)
+    pdf.cell(30,  8, "Placa",      border=1, fill=True)
+    pdf.cell(38,  8, "Entrada",    border=1, fill=True)
+    pdf.cell(38,  8, "Salida",     border=1, fill=True)
+    pdf.cell(28,  8, "Pago",       border=1, fill=True)
+    pdf.cell(28,  8, "Monto",      border=1, fill=True, ln=True)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Helvetica", "", 9)
+    montoEfectivo = 0
+    montoSinpe    = 0
+    montoTarjeta  = 0
+    montoTotal    = 0
+    for objeto in listaObjetos:
+        placa    = objeto.obtenerInfo()[0]
+        tipoPago = objeto.obtenerPago()[1]
+        if placa != "" and tipoPago != 0:
+            ubicacion        = objeto.obtenerEstadia()[0]
+            fechaHoraEntrada = objeto.obtenerEstadia()[1]
+            fechaHoraSalida  = objeto.obtenerEstadia()[2]
+            monto            = objeto.obtenerPago()[0]
+            pdf.cell(20,  7, str(ubicacion),                  border=1)
+            pdf.cell(30,  7, str(placa),                      border=1)
+            pdf.cell(38,  7, str(fechaHoraEntrada),           border=1)
+            pdf.cell(38,  7, str(fechaHoraSalida),            border=1)
+            pdf.cell(28,  7, convertirTipoPago(tipoPago),     border=1)
+            pdf.cell(28,  7, f"{monto} col",                  border=1, ln=True)
+            if tipoPago == 1:
+                montoEfectivo += monto
+            elif tipoPago == 2:
+                montoSinpe    += monto
+            else:
+                montoTarjeta  += monto
+            montoTotal += monto
+    pdf.ln(8)
+    pdf.set_text_color(0, 130, 0)
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.cell(0, 8, f"Efectivo  : {montoEfectivo} colones",  ln=True)
+    pdf.cell(0, 8, f"SINPE     : {montoSinpe} colones",     ln=True)
+    pdf.cell(0, 8, f"Tarjeta   : {montoTarjeta} colones",   ln=True)
+    pdf.ln(3)
+    pdf.set_text_color(0, 51, 153)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, f"Total acumulado del dia: {montoTotal} colones", ln=True)
+    pdf.output(rutaPdf)
+    print(f"Reporte guardado en: {rutaPdf}")
