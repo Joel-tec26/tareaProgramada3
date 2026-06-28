@@ -151,7 +151,9 @@ def abrirVentanaPrincipal():
           width=28,
           command=controladorCierreDiario).pack(pady=3)
     tk.Button(marcoReportes, text="b. Cierre por tipo de pago",     width=28).pack(pady=3)
-    tk.Button(marcoReportes, text="c. Exportar cierre diario a CSV", width=28).pack(pady=3)
+    tk.Button(marcoReportes, text="c. Exportar cierre diario a CSV",
+          width=28,
+          command=controladorExportarCSV).pack(pady=3)
     # Configuracion 
     marcoConfig = tk.LabelFrame(ventana, text="4. Configuracion", padx=10, pady=5)
     marcoConfig.pack(pady=5, padx=20, fill="x")
@@ -321,6 +323,22 @@ def controladorCierreDiario():
         "Facturas generadas en carpeta 'facturas'.\n"
         "Reporte generado en carpeta 'reportes'.")
 
+#exportar csv
+def controladorExportarCSV():
+    """
+    Funcionalidad:
+        Exporta el cierre diario a un archivo CSV sin titulos
+        para ser abierto en Excel.
+    Entrada:
+        - (None)
+    Salida:
+        - (None)
+    """
+    exportarCierreDiarioCSV(config.obtenerListaObjetos())
+    messagebox.showinfo("Exito",
+        "Cierre diario exportado correctamente.\n"
+        "Archivo guardado en carpeta 'reportes'.")
+    
 
 
 # programa principal

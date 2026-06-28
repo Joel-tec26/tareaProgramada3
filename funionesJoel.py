@@ -767,3 +767,39 @@ def generarReporteCierreDiario(listaObjetos, config):
     pdf.cell(0, 10, f"Total acumulado del dia: {montoTotal} colones", ln=True)
     pdf.output(rutaPdf)
     print(f"Reporte guardado en: {rutaPdf}")
+
+    # esportar csv
+
+def exportarCierreDiarioCSV(listaObjetos):
+    """
+    Funcionalidad:
+        Exporta la tabla del cierre diario a un archivo CSV sin titulos,
+        con los campos: ubicacion, placa, hora de entrada, hora de salida,
+        tipo de pago y monto. Para abrirlo en Excel y corroborar la informacion.
+    Entrada:
+        - listaObjetos (list): Lista de objetos Estacionamiento.
+    Salida:
+        - (None)
+    """
+    fechaHoy  = datetime.now().strftime("%d-%m-%Y")
+    nombreCsv = f"cierre_diario_{fechaHoy}.csv"
+    if not os.path.exists("reportes"):
+        os.makedirs("reportes")
+    rutaCsv = os.path.join("reportes", nombreCsv)
+    archivo = open(rutaCsv, "w", encoding="utf-8-sig")
+    # ya que excel lo coloca todo en una misma celda le estoy ingresando el separador que indica propiamente a Excel que el separador es punto y coma
+    archivo.write("sep=;\n")
+
+    for objeto in listaObjetos:
+        placa    = objeto.obtenerInfo()[0]
+        tipoPago = objeto.obtenerPago()[1]
+
+        if placa != "" and tipoPago != 0:
+            ubicacion        = objeto.obtenerEstadia()[0]
+            fechaHoraEntrada = objeto.obtenerEstadia()[1]
+            fechaHoraSalida  = objeto.obtenerEstadia()[2]
+            monto            = objeto.obtenerPago()[0]
+            linea = f"{ubicacion};{placa};{fechaHoraEntrada};{fechaHoraSalida};{convertirTipoPago(tipoPago)};{monto}\n"
+            archivo.write(linea)
+    archivo.close()
+    print(f"CSV exportado en: {rutaCsv}")
