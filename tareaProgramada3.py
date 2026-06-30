@@ -54,14 +54,11 @@ def controladorLlenadoMasivo():
     if config.obtenerTieneElectrico():
         espaciosDisponibles -= 1
     topeMaximoMasivo = espaciosDisponibles - int(espaciosDisponibles * 0.05)
-
     datosJson   = cargarJson()
     diccionario = construirDiccionarioRestringido(datosJson, topeMaximoMasivo, config.obtenerMontoPorHora())
-
     print("\n Diccionario")
     for placa in diccionario:
         print(f"  {placa}: {diccionario[placa]}")
-
     config.listaObjetos = convertirDiccionarioAObjetos(diccionario)
     guardarBaseDatos(config.listaObjetos)
     print(f"base de tados guardada con {len(config.listaObjetos)} objetos.")
@@ -89,7 +86,6 @@ def controladorGuardarConfiguracion(entradaTamanno, entradaMonto, entradaGracia,
     valorTamanno = entradaTamanno.get()
     valorMonto  = entradaMonto.get()
     valorGracia = entradaGracia.get()
-
     if not valorTamanno.isdigit() or not valorMonto.isdigit() or not valorGracia.isdigit():
         messagebox.showerror("Error", "Todos los campos deben ser numeros enteros.")
         return
@@ -111,7 +107,6 @@ def controladorGuardarConfiguracion(entradaTamanno, entradaMonto, entradaGracia,
             abrirVentanaPrincipal()
         else:
             messagebox.showinfo("Exito", "Configuracion actualizada correctamente.")
-
 
 def abrirVentanaPrincipal():
     """
@@ -153,12 +148,13 @@ def abrirVentanaPrincipal():
     # Configuracion 
     marcoConfig = tk.LabelFrame(ventana, text="4. Configuracion", padx=10, pady=5)
     marcoConfig.pack(pady=5, padx=20, fill="x")
-    tk.Button(marcoConfig, text="a. Tamanno del estacionamiento",  width=28, command=lambda:tamannoEstacionamiento(config)).pack(pady=3)
+    tk.Button(marcoConfig, text="a. Tamaño del estacionamiento",  width=28, command=lambda:tamannoEstacionamiento(config)).pack(pady=3)
     tk.Button(marcoConfig, text="b. Tiempo de gracia en minutos",  width=28, command=lambda:tiempoGraciaEnMinutos(config)).pack(pady=3)
     tk.Button(marcoConfig, text="c. Modificar monto por hora",     width=28, command=lambda:montoPorHora(config)).pack(pady=3)
     #Acerca de 
-    tk.Button(ventana, text="5. Acerca de",
-              width=30, height=2).pack(pady=5)
+    tk.Button(ventana, text="5. Acerca de", width=30, height=2, command=lambda: abrirVentanaAcercaDe()).pack(pady=5)
+    # Salir
+    tk.Button(ventana, text="6. Salir", width=30, height=2, command=raiz.destroy).pack(pady=5)
 
 
 # configuracion
@@ -175,32 +171,26 @@ def abrirVentanaConfiguracion(esInicial=False):
     ventana = tk.Toplevel()
     ventana.title("Configuracion")
     ventana.resizable(False, False)
-
     tk.Label(ventana, text="Configuracion del Estacionamiento",
              font=("Arial", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=10)
-
     tk.Label(ventana, text="Tamaño del estacionamiento:").grid(row=1, column=0, sticky="e", padx=10, pady=5)
     entradaTamano = tk.Entry(ventana)
     entradaTamano.grid(row=1, column=1, padx=10)
     if not esInicial:
         entradaTamano.insert(0, str(config.obtenerTamanno()))
-
     tk.Label(ventana, text="Monto por hora (colones):").grid(row=2, column=0, sticky="e", padx=10, pady=5)
     entradaMonto = tk.Entry(ventana)
     entradaMonto.grid(row=2, column=1, padx=10)
     if not esInicial:
         entradaMonto.insert(0, str(config.obtenerMontoPorHora()))
-
     tk.Label(ventana, text="Tiempo de gracia (minutos):").grid(row=3, column=0, sticky="e", padx=10, pady=5)
     entradaGracia = tk.Entry(ventana)
     entradaGracia.grid(row=3, column=1, padx=10)
     if not esInicial:
         entradaGracia.insert(0, str(config.obtenerTiempoGracia()))
-
     varElectrico = tk.BooleanVar(value=config.obtenerTieneElectrico())
     tk.Checkbutton(ventana, text="Tiene espacio electrico?",
                    variable=varElectrico).grid(row=4, column=0, columnspan=2, pady=5)
-
     tk.Button(ventana, text="Guardar",
               command=lambda: controladorGuardarConfiguracion( 
                   entradaTamano, entradaMonto, entradaGracia,
@@ -208,7 +198,6 @@ def abrirVentanaConfiguracion(esInicial=False):
               ).grid(row=5, column=0, pady=10)
     tk.Button(ventana, text="Regresar",
               command=ventana.destroy).grid(row=5, column=1, pady=10)
-
     if esInicial:
         ventana.grab_set()
         ventana.wait_window()
@@ -224,9 +213,9 @@ def controladorLlenadoMasivo():
     Salida:
         - (None)
     """
-    ocupados         = calcularEspaciosOcupados(config.obtenerListaObjetos())
+    ocupados = calcularEspaciosOcupados(config.obtenerListaObjetos())
     topeMaximoMasivo = calcularEspaciosDisponibles(config)
-    espaciosLibres   = topeMaximoMasivo - ocupados
+    espaciosLibres = topeMaximoMasivo - ocupados
     if espaciosLibres <= 0:
         messagebox.showwarning("Aviso", "No hay espacios disponibles para asignar vehiculos.")
         return
@@ -249,7 +238,7 @@ def controladorLlenadoMasivo():
             messagebox.showerror("Error", f"Ingrese un numero entre 1 y {espaciosLibres}.")
             return
         ventana.destroy()
-        datosJson    = cargarJson()
+        datosJson = cargarJson()
         listaObjetos = asignarVehiculosMasivos(config, datosJson, config.obtenerMontoPorHora(), cantidad)
         config.asignarListaObjetos(listaObjetos)
         generarVouchersLlenadoMasivo(config.obtenerListaObjetos(), config)
@@ -287,7 +276,7 @@ def abrirSeleccionEspacio():
     def confirmar():
         num = int(espacioVar.get())
         ventana.destroy()
-        estacionarVehiculo(config.obtenerListaObjetos(), config, num, ventana)
+        estacionarVehiculo(config.obtenerListaObjetos(), config, num)
     tk.Button(ventana, text="Continuar", command=confirmar).grid(row=2, column=0, pady=10)
     tk.Button(ventana, text="Cancelar",  command=ventana.destroy).grid(row=2, column=1, pady=10)
 
@@ -335,6 +324,35 @@ def controladorExportarCSV():
         "Cierre diario exportado correctamente.\n"
         "Archivo guardado en carpeta 'reportes'.")
     
+# acerca de
+
+def abrirVentanaAcercaDe():
+    """
+    Funcionalidad:
+        Abre la ventana de informacion del equipo de desarrollo,
+        mostrando los creadores de la aplicacion y datos del sistema.
+        Incluye un boton para regresar a la ventana principal.
+    Entrada:
+        - (None)
+    Salida:
+        - (None)
+    """
+    ventana = tk.Toplevel()
+    ventana.title("Acerca de")
+    ventana.resizable(False, False)
+    tk.Label(ventana,text="Sistema de Estacionamiento",font=("Arial", 18, "bold"),fg="#003399").pack(pady=(20, 2))
+    tk.Label(ventana,text="Versión 3.14",font=("Arial", 10, "italic"),fg="#555555").pack(pady=(0, 15))
+    tk.Frame(ventana, bg="#003399", height=2).pack(fill="x", padx=20)
+    tk.Label(ventana, text="Equipo de desarrollo",font=("Arial", 12, "bold"),fg="#003399").pack(pady=(15, 5))
+    marcoDesarrolladores = tk.Frame(ventana, bd=1, relief="groove", padx=20, pady=10)
+    marcoDesarrolladores.pack(padx=30, pady=5, fill="x")
+    tk.Label(marcoDesarrolladores,text="Joel Jesús Porras Muñoz",font=("Arial", 11)).pack(anchor="w", pady=2)
+    tk.Label(marcoDesarrolladores,text="Alexis Torres Orellana",font=("Arial", 11)).pack(anchor="w", pady=2)
+    tk.Frame(ventana, bg="#003399", height=2).pack(fill="x", padx=20, pady=(15, 0))
+    tk.Label(ventana,text="Taller de Programación  -  TEC  -  2026", font=("Arial", 9),fg="#555555").pack(pady=(8, 20))
+    tk.Button(ventana, text="Regresar", width=15, height=2, command=ventana.destroy).pack(pady=(0, 20))
+    return
+
 
 # programa principal
 raiz = tk.Tk()

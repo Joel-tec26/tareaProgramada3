@@ -26,7 +26,6 @@ se  usa lambda porque es la unica forma de pasar parametros en command, sin este
 parametros unicos y no el mismo por ser generados en un for
 """
 
-
 marcasValidas = ["Toyota", "Honda", "Hyundai", "Kia", "Nissan",
                   "Suzuki", "Mitsubishi", "Mazda", "Ford", "Chevrolet",
                   "Land Rover", "GMC", "Saturn"]
@@ -39,7 +38,6 @@ tiposValidos = ["Sedan", "SUV", "Pickup", "Hatchback", "Van",
                  "Coupe", "Convertible"]
 
 archivojson = "vehicle_data.json"
-
 
 def cargarJson():
     """
@@ -186,33 +184,32 @@ def construirDiccionarioRestringido(datosJson, cantidadVehiculos, montoPorHora):
     while contador <= cantidadVehiculos:
         if indiceJson < len(datosJson):
             registro = datosJson[indiceJson]
-            placa    = extraerPlaca(registro, contador)
-            marca    = extraerMarca(registro)
-            color    = extraerColor(registro)
-            tipo     = extraerTipo(registro)
+            placa = extraerPlaca(registro, contador)
+            marca = extraerMarca(registro)
+            color = extraerColor(registro)
+            tipo = extraerTipo(registro)
         else:
             placa = f"CR{contador:04d}"
             marca = random.randint(0, len(marcasValidas) - 1)
             color = random.randint(0, len(coloresValidos) - 1)
-            tipo  = random.randint(0, len(tiposValidos) - 1)
+            tipo = random.randint(0, len(tiposValidos) - 1)
         if placa in diccionario:
             placa = placa + str(contador)
-
-        ubicacion        = str(contador)
+        ubicacion = str(contador)
         fechaHoraEntrada = generarFechaEntradaAleatoria()
-        fechaHoraSalida  = ""
-        monto            = montoPorHora
-        tipoPago         = 0
+        fechaHoraSalida = ""
+        monto = montoPorHora
+        tipoPago = 0
 
         diccionario[placa] = [
-            marca,             # [0]
-            color,             # [1]
-            tipo,              # [2]
-            ubicacion,         # [3]
-            fechaHoraEntrada,  # [4]
-            fechaHoraSalida,   # [5]
-            monto,             # [6]
-            tipoPago           # [7]
+            marca,             
+            color,             
+            tipo,              
+            ubicacion,         
+            fechaHoraEntrada,  
+            fechaHoraSalida,   
+            monto,             
+            tipoPago           
         ]
         contador  += 1
         indiceJson += 1
@@ -234,21 +231,20 @@ def convertirDiccionarioAObjetos(diccionario):
     identificador = 1
 
     for placa in diccionario:
-        datosVehiculo    = diccionario[placa]
-        marca            = datosVehiculo[0]
-        color            = datosVehiculo[1]
-        tipo             = datosVehiculo[2]
-        ubicacion        = datosVehiculo[3]
+        datosVehiculo = diccionario[placa]
+        marca = datosVehiculo[0]
+        color = datosVehiculo[1]
+        tipo = datosVehiculo[2]
+        ubicacion = datosVehiculo[3]
         fechaHoraEntrada = datosVehiculo[4]
-        fechaHoraSalida  = datosVehiculo[5]
-        monto            = datosVehiculo[6]
-        tipoPago         = datosVehiculo[7]
-
+        fechaHoraSalida = datosVehiculo[5]
+        monto = datosVehiculo[6]
+        tipoPago = datosVehiculo[7]
         objetoEstacionamiento = Estacionamiento(
             identificador = str(identificador),
-            info          = (placa, marca, color, tipo),
-            estadia       = [ubicacion, fechaHoraEntrada, fechaHoraSalida],
-            pago          = (monto, tipoPago)
+            info = (placa, marca, color, tipo),
+            estadia = [ubicacion, fechaHoraEntrada, fechaHoraSalida],
+            pago = (monto, tipoPago)
         )
         listaObjetos.append(objetoEstacionamiento)
         identificador += 1
@@ -301,7 +297,7 @@ def obtenerUbicacionesLibres(listaObjetos, config):
         - ubicacionesLibres (list): Lista de indices disponibles para asignar.
     """
     espaciosEspeciales = max(2, int(config.obtenerTamanno() * 0.05))
-    inicioGenerales    = espaciosEspeciales
+    inicioGenerales = espaciosEspeciales
     if config.obtenerTieneElectrico():
         inicioGenerales += 1
 
@@ -327,10 +323,10 @@ def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada)
     Salida:
         - listaObjetos (list): Lista de objetos actualizada con los nuevos vehiculos.
     """
-    listaObjetos      = config.obtenerListaObjetos()
+    listaObjetos = config.obtenerListaObjetos()
     topeMaximoMasivo  = calcularEspaciosDisponibles(config)
-    ocupados          = calcularEspaciosOcupados(listaObjetos)
-    espaciosALlenar   = topeMaximoMasivo - ocupados
+    ocupados = calcularEspaciosOcupados(listaObjetos)
+    espaciosALlenar = topeMaximoMasivo - ocupados
     ubicacionesLibres = obtenerUbicacionesLibres(listaObjetos, config)
     if espaciosALlenar <= 0:
         print("No hay espacios disponibles para llenar masivamente.")
@@ -339,14 +335,14 @@ def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada)
         espaciosALlenar = cantidadSolicitada
     random.shuffle(ubicacionesLibres)
     diccionario = construirDiccionarioRestringido(datosJson, espaciosALlenar, montoPorHora)
-    placas      = list(diccionario.keys())
+    placas = list(diccionario.keys())
     indiceVehiculo  = 0
     indiceUbicacion = 0
     while indiceVehiculo < len(placas) and indiceUbicacion < len(ubicacionesLibres):
-        placa         = placas[indiceVehiculo]
+        placa = placas[indiceVehiculo]
         datosVehiculo = diccionario[placa]
-        posicion      = ubicacionesLibres[indiceUbicacion]
-        objeto        = listaObjetos[posicion]
+        posicion = ubicacionesLibres[indiceUbicacion]
+        objeto = listaObjetos[posicion]
         objeto.asignarInfo((placa, datosVehiculo[0], datosVehiculo[1], datosVehiculo[2]))
         objeto.asignarEstadia([str(posicion + 1), datosVehiculo[4], datosVehiculo[5]])
         objeto.asignarPago((datosVehiculo[6], datosVehiculo[7]))
@@ -368,7 +364,7 @@ def generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR):
         - (None)
     """
     contenidoQR = f"{placa}-{marca}-{tipo}-{fechaHoraEntrada}"
-    imagenQR    = qrcode.make(contenidoQR)
+    imagenQR = qrcode.make(contenidoQR)
     imagenQR.save(rutaQR)
 
 
@@ -383,20 +379,20 @@ def generarVoucher(objeto, config):
     Salida:
         - (None)
     """
-    placa            = objeto.obtenerInfo()[0]
-    marcaIndice      = objeto.obtenerInfo()[1]
-    colorIndice      = objeto.obtenerInfo()[2]
-    tipoIndice       = objeto.obtenerInfo()[3]
+    placa = objeto.obtenerInfo()[0]
+    marcaIndice = objeto.obtenerInfo()[1]
+    colorIndice = objeto.obtenerInfo()[2]
+    tipoIndice = objeto.obtenerInfo()[3]
     fechaHoraEntrada = objeto.obtenerEstadia()[1]
-    ubicacion        = objeto.obtenerEstadia()[0]
+    ubicacion = objeto.obtenerEstadia()[0]
 
     marca = marcasValidas[marcaIndice]
     color = coloresValidos[colorIndice]
-    tipo  = tiposValidos[tipoIndice]
+    tipo = tiposValidos[tipoIndice]
 
     fechaFormato = fechaHoraEntrada.replace("/", "-").replace(" ", "_").replace(":", "")
-    nombrePdf    = f"voucher_{placa}_{fechaFormato}.pdf"
-    nombreQR     = f"qr_{placa}_{fechaFormato}.png"
+    nombrePdf = f"voucher_{placa}_{fechaFormato}.pdf"
+    nombreQR = f"qr_{placa}_{fechaFormato}.png"
     if not os.path.exists("vouchers"):
         os.makedirs("vouchers")
     rutaPdf = os.path.join("vouchers", nombrePdf)
@@ -453,9 +449,9 @@ def crearListaVacia(config):
     while contador <= config.obtenerTamanno():
         objetoEstacionamiento = Estacionamiento(
             identificador = str(contador),
-            info          = ("", 0, 0, 0),
-            estadia       = [str(contador), "", ""],
-            pago          = (0, 0)
+            info = ("", 0, 0, 0),
+            estadia = [str(contador), "", ""],
+            pago = (0, 0)
         )
         listaObjetos.append(objetoEstacionamiento)
         contador += 1
@@ -499,7 +495,7 @@ def estacionarVehiculo(baseDatos, config, num):
     entradaHora.grid(row=5, column=1, padx=10)
     tk.Label(ventana, text="(DD/MM/AAAA HH:MM)", font=("Arial", 8), fg="gray").grid(row=6, column=1, sticky="w", padx=10)
     def confirmar():
-        placa       = entradaPlaca.get().strip()
+        placa = entradaPlaca.get().strip()
         horaEntrada = entradaHora.get().strip()
         if placa == "":
             messagebox.showerror("Error", "La placa no puede estar vacia.")
@@ -527,7 +523,7 @@ def estacionarVehiculo(baseDatos, config, num):
         if confirmacion:
             marcaIndice = buscarIndiceEnLista(marcasValidas, marcaVar.get())
             colorIndice = buscarIndiceEnLista(coloresValidos, colorVar.get())
-            tipoIndice  = buscarIndiceEnLista(tiposValidos,  tipoVar.get())
+            tipoIndice = buscarIndiceEnLista(tiposValidos,  tipoVar.get())
             objeto = baseDatos[num - 1]
             objeto.asignarInfo((placa, marcaIndice, colorIndice, tipoIndice))
             objeto.asignarEstadia([str(num), horaEntrada, ""])
@@ -560,15 +556,12 @@ def calcularMonto(fechaHoraEntrada, fechaHoraSalida, montoPorHora, tiempoGracia)
     """
     entrada = datetime.strptime(fechaHoraEntrada, "%d/%m/%Y %H:%M")
     salida  = datetime.strptime(fechaHoraSalida,  "%d/%m/%Y %H:%M")
-
-    diferencia       = salida - entrada
-    minutosTotal     = int(diferencia.total_seconds() / 60)
-
+    diferencia = salida - entrada
+    minutosTotal = int(diferencia.total_seconds() / 60)
     if minutosTotal <= tiempoGracia:
         return 0
-
     horasCobrar = minutosTotal / 60
-    monto       = int(horasCobrar * montoPorHora)
+    monto = int(horasCobrar * montoPorHora)
     return monto
 
 
@@ -615,26 +608,15 @@ def procesarPendientes(listaObjetos, config):
     horaSalida = datetime.now().strftime("%d/%m/%Y %H:%M")
 
     for objeto in listaObjetos:
-        placa    = objeto.obtenerInfo()[0]
+        placa = objeto.obtenerInfo()[0]
         tipoPago = objeto.obtenerPago()[1]
 
         if placa != "" and tipoPago == 0:
-            monto    = calcularMonto(
-                objeto.obtenerEstadia()[1],
-                horaSalida,
-                config.obtenerMontoPorHora(),
-                config.obtenerTiempoGracia()
-            )
+            monto = calcularMonto(objeto.obtenerEstadia()[1], horaSalida,  config.obtenerMontoPorHora(), config.obtenerTiempoGracia())
             tipoPagoAleatorio = asignarTipoPagoAleatorio()
-
-            objeto.asignarEstadia([
-                objeto.obtenerEstadia()[0],
-                objeto.obtenerEstadia()[1],
-                horaSalida
-            ])
+            objeto.asignarEstadia([objeto.obtenerEstadia()[0], objeto.obtenerEstadia()[1], horaSalida])
             objeto.asignarPago((monto, tipoPagoAleatorio))
             generarFactura(objeto, config)
-
     return listaObjetos
 
 def generarFactura(objeto, config):
@@ -648,21 +630,21 @@ def generarFactura(objeto, config):
     Salida:
         - (None)
     """
-    placa            = objeto.obtenerInfo()[0]
-    marcaIndice      = objeto.obtenerInfo()[1]
-    colorIndice      = objeto.obtenerInfo()[2]
-    tipoIndice       = objeto.obtenerInfo()[3]
-    ubicacion        = objeto.obtenerEstadia()[0]
+    placa = objeto.obtenerInfo()[0]
+    marcaIndice = objeto.obtenerInfo()[1]
+    colorIndice = objeto.obtenerInfo()[2]
+    tipoIndice = objeto.obtenerInfo()[3]
+    ubicacion = objeto.obtenerEstadia()[0]
     fechaHoraEntrada = objeto.obtenerEstadia()[1]
-    fechaHoraSalida  = objeto.obtenerEstadia()[2]
-    monto            = objeto.obtenerPago()[0]
-    tipoPago         = objeto.obtenerPago()[1]
+    fechaHoraSalida = objeto.obtenerEstadia()[2]
+    monto = objeto.obtenerPago()[0]
+    tipoPago = objeto.obtenerPago()[1]
     marca = marcasValidas[marcaIndice]
     color = coloresValidos[colorIndice]
-    tipo  = tiposValidos[tipoIndice]
+    tipo = tiposValidos[tipoIndice]
     fechaFormato = fechaHoraSalida.replace("/", "-").replace(" ", "_").replace(":", "")
-    nombrePdf    = f"factura_{placa}_{fechaFormato}.pdf"
-    nombreQR     = f"qr_factura_{placa}_{fechaFormato}.png"
+    nombrePdf = f"factura_{placa}_{fechaFormato}.pdf"
+    nombreQR = f"qr_factura_{placa}_{fechaFormato}.png"
     if not os.path.exists("facturas"):
         os.makedirs("facturas")
     rutaPdf = os.path.join("facturas", nombrePdf)
@@ -726,32 +708,32 @@ def generarReporteCierreDiario(listaObjetos, config):
     pdf.set_text_color(0, 51, 153)
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_fill_color(220, 230, 255)
-    pdf.cell(20,  8, "Ubicac.",    border=1, fill=True)
-    pdf.cell(30,  8, "Placa",      border=1, fill=True)
-    pdf.cell(38,  8, "Entrada",    border=1, fill=True)
-    pdf.cell(38,  8, "Salida",     border=1, fill=True)
-    pdf.cell(28,  8, "Pago",       border=1, fill=True)
-    pdf.cell(28,  8, "Monto",      border=1, fill=True, ln=True)
+    pdf.cell(20, 8, "Ubicac.", border=1, fill=True)
+    pdf.cell(30, 8, "Placa", border=1, fill=True)
+    pdf.cell(38, 8, "Entrada", border=1, fill=True)
+    pdf.cell(38, 8, "Salida", border=1, fill=True)
+    pdf.cell(28, 8, "Pago", border=1, fill=True)
+    pdf.cell(28, 8, "Monto", border=1, fill=True, ln=True)
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Helvetica", "", 9)
     montoEfectivo = 0
-    montoSinpe    = 0
+    montoSinpe = 0
     montoTarjeta  = 0
-    montoTotal    = 0
+    montoTotal = 0
     for objeto in listaObjetos:
-        placa    = objeto.obtenerInfo()[0]
+        placa = objeto.obtenerInfo()[0]
         tipoPago = objeto.obtenerPago()[1]
         if placa != "" and tipoPago != 0:
-            ubicacion        = objeto.obtenerEstadia()[0]
+            ubicacion = objeto.obtenerEstadia()[0]
             fechaHoraEntrada = objeto.obtenerEstadia()[1]
-            fechaHoraSalida  = objeto.obtenerEstadia()[2]
-            monto            = objeto.obtenerPago()[0]
-            pdf.cell(20,  7, str(ubicacion),                  border=1)
-            pdf.cell(30,  7, str(placa),                      border=1)
-            pdf.cell(38,  7, str(fechaHoraEntrada),           border=1)
-            pdf.cell(38,  7, str(fechaHoraSalida),            border=1)
-            pdf.cell(28,  7, convertirTipoPago(tipoPago),     border=1)
-            pdf.cell(28,  7, f"{monto} col",                  border=1, ln=True)
+            fechaHoraSalida = objeto.obtenerEstadia()[2]
+            monto = objeto.obtenerPago()[0]
+            pdf.cell(20, 7, str(ubicacion), border=1)
+            pdf.cell(30, 7, str(placa), border=1)
+            pdf.cell(38, 7, str(fechaHoraEntrada), border=1)
+            pdf.cell(38, 7, str(fechaHoraSalida), border=1)
+            pdf.cell(28, 7, convertirTipoPago(tipoPago), border=1)
+            pdf.cell(28, 7, f"{monto} col", border=1, ln=True)
             if tipoPago == 1:
                 montoEfectivo += monto
             elif tipoPago == 2:
@@ -793,11 +775,9 @@ def exportarCierreDiarioCSV(listaObjetos):
     archivo = open(rutaCsv, "w", encoding="utf-8-sig")
     # ya que excel lo coloca todo en una misma celda le estoy ingresando el separador que indica propiamente a Excel que el separador es punto y coma
     archivo.write("sep=;\n")
-
     for objeto in listaObjetos:
         placa    = objeto.obtenerInfo()[0]
         tipoPago = objeto.obtenerPago()[1]
-
         if placa != "" and tipoPago != 0:
             ubicacion        = objeto.obtenerEstadia()[0]
             fechaHoraEntrada = objeto.obtenerEstadia()[1]
@@ -911,7 +891,6 @@ def verEstacionamiento(tamanno, baseDatos, config):
         borde = tk.Frame(ventana, bg="#6EE2FF" if pagina==0 else "#f0f0f0", padx=5, pady=5)
         borde.place(x=660, y=300)
         tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF" if pagina==0 else "#f0f0f0",bd=0, activebackground="#59DEFF").grid()
-        #pasar pagina
         borde = tk.Frame(ventana, bg="#C2D2FF"if pagina!=0 else "#868686", padx=5, pady=5)
         borde.place(x=800, y=450)
         tk.Button(borde, text="Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF"if pagina!=0 else "#929292", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina), activebackground="#B9C0FF", cursor="hand2"if pagina!=0 else None, activeforeground="#ffffff", state="normal"if pagina!=0 else "disabled").grid()
