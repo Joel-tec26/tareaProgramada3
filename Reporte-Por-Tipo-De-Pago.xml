@@ -1,0 +1,197 @@
+<reporte>
+	<efectivo>
+		<carro>
+			<placa>WA1DKBFP</placa>
+			<marca>8</marca>
+			<color>10</color>
+			<tipo>2</tipo>
+			<ubicacion>5</ubicacion>
+			<fechaHoraEntrada>30/06/2026 18:32</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0012</placa>
+			<marca>6</marca>
+			<color>0</color>
+			<tipo>6</tipo>
+			<ubicacion>7</ubicacion>
+			<fechaHoraEntrada>30/06/2026 08:44</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0005</placa>
+			<marca>4</marca>
+			<color>8</color>
+			<tipo>6</tipo>
+			<ubicacion>11</ubicacion>
+			<fechaHoraEntrada>30/06/2026 08:44</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0013</placa>
+			<marca>11</marca>
+			<color>8</color>
+			<tipo>4</tipo>
+			<ubicacion>14</ubicacion>
+			<fechaHoraEntrada>30/06/2026 07:32</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>1G6AK5S3</placa>
+			<marca>9</marca>
+			<color>11</color>
+			<tipo>5</tipo>
+			<ubicacion>16</ubicacion>
+			<fechaHoraEntrada>30/06/2026 20:55</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0019</placa>
+			<marca>7</marca>
+			<color>1</color>
+			<tipo>4</tipo>
+			<ubicacion>18</ubicacion>
+			<fechaHoraEntrada>30/06/2026 20:57</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0017</placa>
+			<marca>3</marca>
+			<color>0</color>
+			<tipo>3</tipo>
+			<ubicacion>22</ubicacion>
+			<fechaHoraEntrada>30/06/2026 11:21</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0020</placa>
+			<marca>3</marca>
+			<color>11</color>
+			<tipo>6</tipo>
+			<ubicacion>25</ubicacion>
+			<fechaHoraEntrada>30/06/2026 19:09</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+	</efectivo>
+	<sinpe>
+		<carro>
+			<placa>CR0006</placa>
+			<marca>9</marca>
+			<color>12</color>
+			<tipo>4</tipo>
+			<ubicacion>10</ubicacion>
+			<fechaHoraEntrada>30/06/2026 18:00</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>3C63D3DL</placa>
+			<marca>7</marca>
+			<color>12</color>
+			<tipo>4</tipo>
+			<ubicacion>15</ubicacion>
+			<fechaHoraEntrada>30/06/2026 14:58</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0001</placa>
+			<marca>5</marca>
+			<color>4</color>
+			<tipo>5</tipo>
+			<ubicacion>17</ubicacion>
+			<fechaHoraEntrada>30/06/2026 10:30</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0011</placa>
+			<marca>7</marca>
+			<color>9</color>
+			<tipo>5</tipo>
+			<ubicacion>20</ubicacion>
+			<fechaHoraEntrada>30/06/2026 17:09</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0018</placa>
+			<marca>3</marca>
+			<color>2</color>
+			<tipo>6</tipo>
+			<ubicacion>23</ubicacion>
+			<fechaHoraEntrada>30/06/2026 11:34</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+	<sinpe>
+	<targeta>
+		<carro>
+			<placa>CR0015</placa>
+			<marca>3</marca>
+			<color>6</color>
+			<tipo>2</tipo>
+			<ubicacion>4</ubicacion>
+			<fechaHoraEntrada>30/06/2026 09:47</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0008</placa>
+			<marca>3</marca>
+			<color>0</color>
+			<tipo>1</tipo>
+			<ubicacion>9</ubicacion>
+			<fechaHoraEntrada>30/06/2026 12:01</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0007</placa>
+			<marca>8</marca>
+			<color>4</color>
+			<tipo>5</tipo>
+			<ubicacion>13</ubicacion>
+			<fechaHoraEntrada>30/06/2026 14:31</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0009</placa>
+			<marca>12</marca>
+			<color>12</color>
+			<tipo>1</tipo>
+			<ubicacion>19</ubicacion>
+			<fechaHoraEntrada>30/06/2026 13:10</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>JN8AZ2NC</placa>
+			<marca>10</marca>
+			<color>11</color>
+			<tipo>5</tipo>
+			<ubicacion>24</ubicacion>
+			<fechaHoraEntrada>30/06/2026 12:25</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0014</placa>
+			<marca>12</marca>
+			<color>3</color>
+			<tipo>5</tipo>
+			<ubicacion>26</ubicacion>
+			<fechaHoraEntrada>30/06/2026 14:10</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0016</placa>
+			<marca>4</marca>
+			<color>7</color>
+			<tipo>2</tipo>
+			<ubicacion>29</ubicacion>
+			<fechaHoraEntrada>30/06/2026 12:20</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+		<carro>
+			<placa>CR0010</placa>
+			<marca>4</marca>
+			<color>3</color>
+			<tipo>1</tipo>
+			<ubicacion>30</ubicacion>
+			<fechaHoraEntrada>30/06/2026 07:06</fechaHoraEntrada>
+			<fechaHoraSalida>30/06/2026 12:11</fechaHoraSalida>
+		</carro>
+	</targeta>
+</reporte>
