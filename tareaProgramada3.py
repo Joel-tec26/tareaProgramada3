@@ -336,7 +336,6 @@ def controladorExportarCSV():
         "Archivo guardado en carpeta 'reportes'.")
     
 
-
 # programa principal
 raiz = tk.Tk()
 raiz.withdraw()
