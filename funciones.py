@@ -462,7 +462,7 @@ def crearListaVacia(config):
     return listaObjetos
 
 # estacionar 1 vehiculo 
-def estacionarVehiculo(baseDatos, config, num, ventanaPadre):
+def estacionarVehiculo(baseDatos, config, num):
     """
     Funcionalidad:
         Abre la ventana para registrar un vehiculo en un espacio libre.
@@ -537,7 +537,6 @@ def estacionarVehiculo(baseDatos, config, num, ventanaPadre):
             messagebox.showinfo("Exito",
                 f"Vehiculo estacionado en espacio {num}.\nVoucher generado en carpeta vouchers.")
             ventana.destroy()
-            ventanaPadre.destroy()
     tk.Button(ventana, text="Estacionar", width=10,
           command=confirmar).grid(row=7, column=0, pady=10)
     tk.Button(ventana, text="Regresar",
@@ -832,9 +831,6 @@ def verEstacionamiento(tamanno, baseDatos, config):
             return pagina-1
         print("Error al tratar de llamar esta funcion, uso de modo incorrecto")
     def observarEspacio(baseDatos, num, valor, config):
-        verEspacio = tk.Toplevel()
-        verEspacio.title(f"Estacionamiento: {num}")
-        verEspacio.geometry("300x300")
         def opcionesPago():
             menupago1 = tk.Toplevel()
             menupago1.title(f"Seleccion de tipo de pago")
@@ -868,17 +864,12 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 tk.Label(menupago2, text=f"Pago realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
                 tk.Button(menupago2, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
         if not valor:
-            tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=0, pady=5)
-            tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
-            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
-            tk.Label(verEspacio, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
-            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
-            tk.Label(verEspacio, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
-            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
-            tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
-            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-            tk.Button(verEspacio, text="Estacionar", font=("Arial", 10, "bold"), width=8, height=3, bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
+            estacionarVehiculo(baseDatos, config, num-1)
+            generarUI(baseDatos, pagina=0)
         else:
+            verEspacio = tk.Toplevel()
+            verEspacio.geometry("300x300")
+            verEspacio.title(f"Estacionamiento: {num}")
             tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
             tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
             tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
@@ -889,7 +880,7 @@ def verEstacionamiento(tamanno, baseDatos, config):
             tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
             tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
             tk.Button(verEspacio, text="Pagar",font=("Arial", 10, "bold"), width=8, height=3,bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", command=lambda: opcionesPago(), activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
-        tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: verEspacio.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
+            tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: verEspacio.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
         return
     def generarUI(baseDatos, pagina=0):
         #lo que hago acá, es borrar widgets ya que cuando cambio de pagina, los widgets (objetos como botones o textos) se quedan
