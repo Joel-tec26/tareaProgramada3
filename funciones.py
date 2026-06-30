@@ -12,9 +12,11 @@ import qrcode
 import os
 from manejoArchivos import guardarBaseDatos
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import *
+from tkinter import ttk, messagebox
 from manejoArchivos import *
 from fpdf import FPDF
+
 
 """
 uso os para interactuar con el sistema de archivos en especifico
@@ -323,10 +325,10 @@ def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada)
     Salida:
         - listaObjetos (list): Lista de objetos actualizada con los nuevos vehiculos.
     """
-    listaObjetos      = config.obtenerListaObjetos()
-    topeMaximoMasivo  = calcularEspaciosDisponibles(config)
-    ocupados          = calcularEspaciosOcupados(listaObjetos)
-    espaciosALlenar   = topeMaximoMasivo - ocupados
+    listaObjetos = config.obtenerListaObjetos()
+    topeMaximoMasivo = calcularEspaciosDisponibles(config)
+    ocupados = calcularEspaciosOcupados(listaObjetos)
+    espaciosALlenar = topeMaximoMasivo - ocupados
     ubicacionesLibres = obtenerUbicacionesLibres(listaObjetos, config)
     if espaciosALlenar <= 0:
         print("No hay espacios disponibles para llenar masivamente.")
@@ -339,14 +341,14 @@ def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada)
     indiceVehiculo  = 0
     indiceUbicacion = 0
     while indiceVehiculo < len(placas) and indiceUbicacion < len(ubicacionesLibres):
-        placa         = placas[indiceVehiculo]
+        placa = placas[indiceVehiculo]
         datosVehiculo = diccionario[placa]
-        posicion      = ubicacionesLibres[indiceUbicacion]
-        objeto        = listaObjetos[posicion]
+        posicion = ubicacionesLibres[indiceUbicacion]
+        objeto  = listaObjetos[posicion]
         objeto.asignarInfo((placa, datosVehiculo[0], datosVehiculo[1], datosVehiculo[2]))
         objeto.asignarEstadia([str(posicion + 1), datosVehiculo[4], datosVehiculo[5]])
         objeto.asignarPago((datosVehiculo[6], datosVehiculo[7]))
-        indiceVehiculo  += 1
+        indiceVehiculo += 1
         indiceUbicacion += 1
     return listaObjetos
 
@@ -364,7 +366,7 @@ def generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR):
         - (None)
     """
     contenidoQR = f"{placa}-{marca}-{tipo}-{fechaHoraEntrada}"
-    imagenQR    = qrcode.make(contenidoQR)
+    imagenQR = qrcode.make(contenidoQR)
     imagenQR.save(rutaQR)
 
 
@@ -388,11 +390,11 @@ def generarVoucher(objeto, config):
 
     marca = marcasValidas[marcaIndice]
     color = coloresValidos[colorIndice]
-    tipo  = tiposValidos[tipoIndice]
+    tipo = tiposValidos[tipoIndice]
 
     fechaFormato = fechaHoraEntrada.replace("/", "-").replace(" ", "_").replace(":", "")
-    nombrePdf    = f"voucher_{placa}_{fechaFormato}.pdf"
-    nombreQR     = f"qr_{placa}_{fechaFormato}.png"
+    nombrePdf = f"voucher_{placa}_{fechaFormato}.pdf"
+    nombreQR = f"qr_{placa}_{fechaFormato}.png"
     if not os.path.exists("vouchers"):
         os.makedirs("vouchers")
     rutaPdf = os.path.join("vouchers", nombrePdf)
@@ -558,12 +560,10 @@ def calcularMonto(fechaHoraEntrada, fechaHoraSalida, montoPorHora, tiempoGracia)
     entrada = datetime.strptime(fechaHoraEntrada, "%d/%m/%Y %H:%M")
     salida  = datetime.strptime(fechaHoraSalida,  "%d/%m/%Y %H:%M")
 
-    diferencia       = salida - entrada
-    minutosTotal     = int(diferencia.total_seconds() / 60)
-
+    diferencia = salida - entrada
+    minutosTotal = int(diferencia.total_seconds() / 60)
     if minutosTotal <= tiempoGracia:
         return 0
-
     horasCobrar = minutosTotal / 60
     monto       = int(horasCobrar * montoPorHora)
     return monto
@@ -645,21 +645,21 @@ def generarFactura(objeto, config):
     Salida:
         - (None)
     """
-    placa            = objeto.obtenerInfo()[0]
-    marcaIndice      = objeto.obtenerInfo()[1]
-    colorIndice      = objeto.obtenerInfo()[2]
-    tipoIndice       = objeto.obtenerInfo()[3]
-    ubicacion        = objeto.obtenerEstadia()[0]
+    placa  = objeto.obtenerInfo()[0]
+    marcaIndice = objeto.obtenerInfo()[1]
+    colorIndice = objeto.obtenerInfo()[2]
+    tipoIndice = objeto.obtenerInfo()[3]
+    ubicacion  = objeto.obtenerEstadia()[0]
     fechaHoraEntrada = objeto.obtenerEstadia()[1]
-    fechaHoraSalida  = objeto.obtenerEstadia()[2]
-    monto            = objeto.obtenerPago()[0]
-    tipoPago         = objeto.obtenerPago()[1]
+    fechaHoraSalida = objeto.obtenerEstadia()[2]
+    monto = objeto.obtenerPago()[0]
+    tipoPago = objeto.obtenerPago()[1]
     marca = marcasValidas[marcaIndice]
     color = coloresValidos[colorIndice]
-    tipo  = tiposValidos[tipoIndice]
+    tipo = tiposValidos[tipoIndice]
     fechaFormato = fechaHoraSalida.replace("/", "-").replace(" ", "_").replace(":", "")
-    nombrePdf    = f"factura_{placa}_{fechaFormato}.pdf"
-    nombreQR     = f"qr_factura_{placa}_{fechaFormato}.png"
+    nombrePdf = f"factura_{placa}_{fechaFormato}.pdf"
+    nombreQR  = f"qr_factura_{placa}_{fechaFormato}.png"
     if not os.path.exists("facturas"):
         os.makedirs("facturas")
     rutaPdf = os.path.join("facturas", nombrePdf)
@@ -706,8 +706,8 @@ def generarReporteCierreDiario(listaObjetos, config):
     Salida:
         - (None)
     """
-    fechaHoy     = datetime.now().strftime("%d/%m/%Y")
-    nombrePdf    = f"cierre_diario_{fechaHoy.replace('/', '-')}.pdf"
+    fechaHoy = datetime.now().strftime("%d/%m/%Y")
+    nombrePdf = f"cierre_diario_{fechaHoy.replace('/', '-')}.pdf"
     if not os.path.exists("reportes"):
         os.makedirs("reportes")
     rutaPdf = os.path.join("reportes", nombrePdf)
@@ -723,12 +723,12 @@ def generarReporteCierreDiario(listaObjetos, config):
     pdf.set_text_color(0, 51, 153)
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_fill_color(220, 230, 255)
-    pdf.cell(20,  8, "Ubicac.",    border=1, fill=True)
-    pdf.cell(30,  8, "Placa",      border=1, fill=True)
-    pdf.cell(38,  8, "Entrada",    border=1, fill=True)
-    pdf.cell(38,  8, "Salida",     border=1, fill=True)
-    pdf.cell(28,  8, "Pago",       border=1, fill=True)
-    pdf.cell(28,  8, "Monto",      border=1, fill=True, ln=True)
+    pdf.cell(20,  8, "Ubicac.", border=1, fill=True)
+    pdf.cell(30,  8, "Placa", border=1, fill=True)
+    pdf.cell(38,  8, "Entrada", border=1, fill=True)
+    pdf.cell(38,  8, "Salida", border=1, fill=True)
+    pdf.cell(28,  8, "Pago", border=1, fill=True)
+    pdf.cell(28,  8, "Monto", border=1, fill=True, ln=True)
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Helvetica", "", 9)
     montoEfectivo = 0
@@ -743,16 +743,16 @@ def generarReporteCierreDiario(listaObjetos, config):
             fechaHoraEntrada = objeto.obtenerEstadia()[1]
             fechaHoraSalida  = objeto.obtenerEstadia()[2]
             monto            = objeto.obtenerPago()[0]
-            pdf.cell(20,  7, str(ubicacion),                  border=1)
-            pdf.cell(30,  7, str(placa),                      border=1)
-            pdf.cell(38,  7, str(fechaHoraEntrada),           border=1)
-            pdf.cell(38,  7, str(fechaHoraSalida),            border=1)
-            pdf.cell(28,  7, convertirTipoPago(tipoPago),     border=1)
-            pdf.cell(28,  7, f"{monto} col",                  border=1, ln=True)
+            pdf.cell(20,  7, str(ubicacion),  border=1)
+            pdf.cell(30,  7, str(placa), border=1)
+            pdf.cell(38,  7, str(fechaHoraEntrada), border=1)
+            pdf.cell(38,  7, str(fechaHoraSalida), border=1)
+            pdf.cell(28,  7, convertirTipoPago(tipoPago), border=1)
+            pdf.cell(28,  7, f"{monto} col", border=1, ln=True)
             if tipoPago == 1:
                 montoEfectivo += monto
             elif tipoPago == 2:
-                montoSinpe    += monto
+                montoSinpe += monto
             else:
                 montoTarjeta  += monto
             montoTotal += monto
@@ -769,7 +769,7 @@ def generarReporteCierreDiario(listaObjetos, config):
     pdf.output(rutaPdf)
     print(f"Reporte guardado en: {rutaPdf}")
 
-    # esportar csv
+# esportar csv
 
 def exportarCierreDiarioCSV(listaObjetos):
     """
@@ -792,22 +792,20 @@ def exportarCierreDiarioCSV(listaObjetos):
     archivo.write("sep=;\n")
 
     for objeto in listaObjetos:
-        placa    = objeto.obtenerInfo()[0]
+        placa  = objeto.obtenerInfo()[0]
         tipoPago = objeto.obtenerPago()[1]
 
         if placa != "" and tipoPago != 0:
-            ubicacion        = objeto.obtenerEstadia()[0]
+            ubicacion = objeto.obtenerEstadia()[0]
             fechaHoraEntrada = objeto.obtenerEstadia()[1]
             fechaHoraSalida  = objeto.obtenerEstadia()[2]
-            monto            = objeto.obtenerPago()[0]
+            monto = objeto.obtenerPago()[0]
             linea = f"{ubicacion};{placa};{fechaHoraEntrada};{fechaHoraSalida};{convertirTipoPago(tipoPago)};{monto}\n"
             archivo.write(linea)
     archivo.close()
     print(f"CSV exportado en: {rutaCsv}")
 
 #funciones alexis
-
-
 
 def observarEspacio(baseDatos, config, num, valor):
     """
@@ -1220,7 +1218,7 @@ def montoPorHora(config):
             - (None)
         Salida:
             - (None)
-        """
+        """ 
         valor = entrada.get()
         if not esNumero(valor) or valor == "":
             messagebox.showerror("Error", "Solo puede ingresar datos numericos.")
@@ -1231,6 +1229,5 @@ def montoPorHora(config):
             guardarConfiguracion(config)
             messagebox.showinfo("Exito", "Cambio realizado con exito.")
             ventana.destroy()
-
     tk.Button(ventana, text="Cambiar", command=confirmar).grid(row=2, column=0, pady=10)
     tk.Button(ventana, text="Atras", command=ventana.destroy).grid(row=2, column=1, pady=10)
