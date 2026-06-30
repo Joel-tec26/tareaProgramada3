@@ -814,7 +814,6 @@ def exportarCierreDiarioCSV(listaObjetos):
 def verEstacionamiento(tamanno, baseDatos, config):
     """
     """
-    print("a")
     ventana = tk.Toplevel()
     ventana.title("Estacionamiento")
     ventana.geometry("1020x720")
@@ -833,16 +832,16 @@ def verEstacionamiento(tamanno, baseDatos, config):
             return pagina-1
         print("Error al tratar de llamar esta funcion, uso de modo incorrecto")
     def observarEspacio(baseDatos, num, valor, config):
-        verEspacio = tk.Tk()
+        verEspacio = tk.Toplevel()
         verEspacio.title(f"Estacionamiento: {num}")
         verEspacio.geometry("300x300")
         def opcionesPago():
-            menupago1 = tk.Tk()
+            menupago1 = tk.Toplevel()
             menupago1.title(f"Seleccion de tipo de pago")
             menupago1.geometry("400x150")
             tk.Label(menupago1, text=f"Tipo de Pago", font=("Arial", 20, "bold")).grid(row=0, column=0, padx=10, pady=5)
             tk.Label(menupago1,text="Seleccione el tipo de pago: ").grid(row=1, column=0, padx=10, pady=5)
-            tipoPago=ttk.Combobox(menupago1, values=["Efectivo","Sinpe","Targeta"],state="readonly")
+            tipoPago=ttk.Combobox(menupago1, values=["Efectivo","Sinpe","Tarjeta"],state="readonly")
             tipoPago.grid(row=1,column=1)
             tipoPago.current(0)
             tk.Button(menupago1, text="Pagar", width=8, height=3, cursor="hand2", command=lambda:pagar()).grid(row=5, column=1, padx=10, pady=5)
@@ -852,7 +851,7 @@ def verEstacionamiento(tamanno, baseDatos, config):
                     menupago1.destroy()
                     menupago2.destroy()
                     generarUI(baseDatos,pagina=0)
-                menupago2 = tk.Tk()
+                menupago2 = tk.Toplevel()
                 menupago2.title(f"pago")
                 menupago2.geometry("250x100")
                 seleccion = tipoPago.get()
@@ -868,7 +867,6 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 guardarBaseDatos(baseDatos)
                 tk.Label(menupago2, text=f"Pago realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
                 tk.Button(menupago2, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
-            menupago1.mainloop()
         if not valor:
             tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=0, pady=5)
             tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
@@ -891,18 +889,19 @@ def verEstacionamiento(tamanno, baseDatos, config):
             tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
             tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
             tk.Button(verEspacio, text="Pagar",font=("Arial", 10, "bold"), width=8, height=3,bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", command=lambda: opcionesPago(), activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
-        tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: ventana.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
-        verEspacio.mainloop()
+        tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: verEspacio.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
         return
     def generarUI(baseDatos, pagina=0):
-        #lo que hago acá, es borrar widgets ya que c
+        #lo que hago acá, es borrar widgets ya que cuando cambio de pagina, los widgets (objetos como botones o textos) se quedan
+        #ahí puestos, entonces al cambiar de pagina, estos desaparecen para que no estén puestos por abajo o que al cambiar mucho de
+        #pagina, se generen muchisimos botones debajo de otros
         for widget in marcoEstacionamientos.winfo_children():
             widget.destroy()
-        for i in range(0,3,2):
-            for o in range(1,8):
-                indice=o+i*7+pagina*14
+        for i in range(2):
+            for o in range(1,7):
+                indice=o+i*6+pagina*12
                 bandera=False
-                if indice==tamanno:
+                if indice>tamanno:
                     break
                 for carro in baseDatos:
                     if int(carro.obtenerEstadia()[0]) == indice and carro.obtenerInfo()[0] != "" and carro.obtenerEstadia()[2]=="":
@@ -912,32 +911,22 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria
                 #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
                 tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera, config=config), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
-            if indice+1>=tamanno:
-                if 14>=tamanno:
-                    if 7>=tamanno and i==0:
-                        break
-                    if i==1:
-                        break
-                borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
-                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
-                tk.Button(borde, text="Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
-                break
-            elif pagina==0:
-                if 14>=tamanno:
-                    if 7>=tamanno and i==0:
-                        break
-                    if i==1:
-                        break
-                borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
-                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
-                tk.Button(borde, text="Siguente", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
-            else:
-                borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
-                borde.grid(row=i,column=9,padx=80,pady=80)
-                tk.Button(borde, text="Siguente" if i==0 else "Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
-            borde = tk.Frame(marcoEstacionamientos, bg="#6EE2FF", padx=5, pady=5)
-            borde.grid(row=i,column=o,padx=10,pady=80)
-            tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF", fg="#000000", bd=0, activebackground="#59DEFF").grid()
+        borde = tk.Frame(ventana, bg="#6EE2FF" if pagina==0 else "#f0f0f0", padx=5, pady=5)
+        borde.place(x=660, y=500)
+        tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF" if pagina==0 else "#f0f0f0", bd=0, activebackground="#59DEFF").grid()
+        borde = tk.Frame(ventana, bg="#6EE2FF" if pagina==0 else "#f0f0f0", padx=5, pady=5)
+        borde.place(x=660, y= 100)
+        tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF" if pagina==0 else "#f0f0f0", bd=0, activebackground="#59DEFF").grid()
+        borde = tk.Frame(ventana, bg="#6EE2FF" if pagina==0 else "#f0f0f0", padx=5, pady=5)
+        borde.place(x=660, y=300)
+        tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF" if pagina==0 else "#f0f0f0",bd=0, activebackground="#59DEFF").grid()
+        #pasar pagina
+        borde = tk.Frame(ventana, bg="#C2D2FF"if pagina!=0 else "#868686", padx=5, pady=5)
+        borde.place(x=800, y=450)
+        tk.Button(borde, text="Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF"if pagina!=0 else "#929292", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina), activebackground="#B9C0FF", cursor="hand2"if pagina!=0 else None, activeforeground="#ffffff", state="normal"if pagina!=0 else "disabled").grid()
+        borde = tk.Frame(ventana, bg="#C2D2FF"if indice<tamanno else "#868686", padx=5, pady=5)
+        borde.place(x=800, y=150)
+        tk.Button(borde, text="Siguente", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF"if indice<tamanno else "#929292", cursor="hand2"if indice<tamanno else None, bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina), activebackground="#B9C0FF", activeforeground="#ffffff", state="normal"if indice<tamanno else "disabled").grid()
     generarUI(baseDatos)
     return baseDatos
 
@@ -945,7 +934,6 @@ def verEstacionamiento(tamanno, baseDatos, config):
 def asignarInfo(baseDatos,tipo):
     xml=""
     for carro in baseDatos:
-        print(carro.obtenerPago()[1])
         if carro.obtenerPago()[1]==tipo:
             xml+=f"\t\t<carro>\n"
             xml+=f"\t\t\t<placa>{carro.obtenerInfo()[0]}</placa>\n"
@@ -978,7 +966,7 @@ def generarReporteTipoPago(baseDatos):
     return
 
 def tamannoEstacionamiento(config):
-    ventana = tk.Tk()
+    ventana = tk.Toplevel()
     ventana.title(f"Seleccion de tipo de pago")
     ventana.geometry("450x150")
     def validarEntrada():
@@ -988,7 +976,7 @@ def tamannoEstacionamiento(config):
                 ventanaCambio.destroy()
                 ventana2.destroy()
                 ventana.destroy()
-            ventanaCambio = tk.Tk()
+            ventanaCambio = tk.Toplevel()
             ventanaCambio.title(f"Cambiar Tamaño")
             ventanaCambio.geometry("250x100")
             tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
@@ -996,14 +984,14 @@ def tamannoEstacionamiento(config):
             guardarConfiguracion(config)
             tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
         if validacion and entrada.get()!="":
-            ventana2 = tk.Tk()
+            ventana2 = tk.Toplevel()
             ventana2.title(f"Confirmacion")
             ventana2.geometry("300x100")
             tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
-            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Aceptar", command=cambiar).grid(row=1,column=0,sticky="w")
             tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
         else:
-            ventana2 = tk.Tk()
+            ventana2 = tk.Toplevel()
             ventana2.title(f"Error!")
             ventana2.geometry("300x100")
             tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
@@ -1018,7 +1006,7 @@ def tamannoEstacionamiento(config):
     return
 
 def tiempoGraciaEnMinutos(config):
-    ventana = tk.Tk()
+    ventana = tk.Toplevel()
     ventana.title(f"Seleccion de tipo de pago")
     ventana.geometry("450x150")
     def validarEntrada():
@@ -1028,7 +1016,7 @@ def tiempoGraciaEnMinutos(config):
                 ventanaCambio.destroy()
                 ventana2.destroy()
                 ventana.destroy()
-            ventanaCambio = tk.Tk()
+            ventanaCambio = tk.Toplevel()
             ventanaCambio.title(f"Cambiar Tiempo de Gracia en Minutos")
             ventanaCambio.geometry("250x100")
             tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
@@ -1036,14 +1024,14 @@ def tiempoGraciaEnMinutos(config):
             guardarConfiguracion(config)
             tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
         if validacion and entrada.get()!="":
-            ventana2 = tk.Tk()
+            ventana2 = tk.Toplevel()
             ventana2.title(f"Confirmacion")
             ventana2.geometry("300x100")
             tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
-            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Aceptar", command=cambiar).grid(row=1,column=0,sticky="w")
             tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
         else:
-            ventana2 = tk.Tk()
+            ventana2 = tk.Toplevel()
             ventana2.title(f"Error!")
             ventana2.geometry("300x100")
             tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
@@ -1080,7 +1068,7 @@ def montoPorHora(config):
             ventana2.title(f"Confirmacion")
             ventana2.geometry("300x100")
             tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
-            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Aceptar", command=cambiar).grid(row=1,column=0,sticky="w")
             tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
         else:
             ventana2 = tk.Tk()
