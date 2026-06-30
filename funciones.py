@@ -861,7 +861,7 @@ def verEstacionamiento(tamanno, baseDatos, config):
                     opcion=2
                 elif seleccion=="Targeta":
                     opcion=3
-                baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],datetime.datetime.now().strftime("%d/%m/%Y %H:%M")])
+                baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],datetime.now().strftime("%d/%m/%Y %H:%M")])
                 baseDatos[num-1].asignarPago((baseDatos[num-1].obtenerPago()[0],opcion))
                 generarVoucher(baseDatos[num-1],config)
                 guardarBaseDatos(baseDatos)
