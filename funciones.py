@@ -1,6 +1,6 @@
 # Creado por: Joel Porras y Alexis Torres
 # Fecha de creación: 15/06/2026 7:16 am
-# Ultima modificación: 15/06/2026 
+# Ultima modificación: 30/06/2026 12pm
 # versión: 3.14
 
 # importacion de librerias
@@ -22,6 +22,8 @@ from fpdf import FPDF
 uso os para interactuar con el sistema de archivos en especifico
 os.path.exists que verifica si la carpeta vouchers existe, os.makedirs que crea la carpeta vouchers si no existe, os.path.join que une rutas de 
 forma compatible con cualquier sistema operativo. Pickle no puede realizar estas operaciones ya que solo sirve para serializar y guardar objetos Python en memoria secundaria
+se  usa lambda porque es la unica forma de pasar parametros en command, sin este, el comando se ejecuta solo y usar el boton no serviria. ademas, asigno variables en el lambda para que cada boton tenga
+parametros unicos y no el mismo por ser generados en un for
 """
 
 
@@ -325,10 +327,10 @@ def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada)
     Salida:
         - listaObjetos (list): Lista de objetos actualizada con los nuevos vehiculos.
     """
-    listaObjetos = config.obtenerListaObjetos()
-    topeMaximoMasivo = calcularEspaciosDisponibles(config)
-    ocupados = calcularEspaciosOcupados(listaObjetos)
-    espaciosALlenar = topeMaximoMasivo - ocupados
+    listaObjetos      = config.obtenerListaObjetos()
+    topeMaximoMasivo  = calcularEspaciosDisponibles(config)
+    ocupados          = calcularEspaciosOcupados(listaObjetos)
+    espaciosALlenar   = topeMaximoMasivo - ocupados
     ubicacionesLibres = obtenerUbicacionesLibres(listaObjetos, config)
     if espaciosALlenar <= 0:
         print("No hay espacios disponibles para llenar masivamente.")
@@ -341,14 +343,14 @@ def asignarVehiculosMasivos(config, datosJson, montoPorHora, cantidadSolicitada)
     indiceVehiculo  = 0
     indiceUbicacion = 0
     while indiceVehiculo < len(placas) and indiceUbicacion < len(ubicacionesLibres):
-        placa = placas[indiceVehiculo]
+        placa         = placas[indiceVehiculo]
         datosVehiculo = diccionario[placa]
-        posicion = ubicacionesLibres[indiceUbicacion]
-        objeto  = listaObjetos[posicion]
+        posicion      = ubicacionesLibres[indiceUbicacion]
+        objeto        = listaObjetos[posicion]
         objeto.asignarInfo((placa, datosVehiculo[0], datosVehiculo[1], datosVehiculo[2]))
         objeto.asignarEstadia([str(posicion + 1), datosVehiculo[4], datosVehiculo[5]])
         objeto.asignarPago((datosVehiculo[6], datosVehiculo[7]))
-        indiceVehiculo += 1
+        indiceVehiculo  += 1
         indiceUbicacion += 1
     return listaObjetos
 
@@ -366,7 +368,7 @@ def generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR):
         - (None)
     """
     contenidoQR = f"{placa}-{marca}-{tipo}-{fechaHoraEntrada}"
-    imagenQR = qrcode.make(contenidoQR)
+    imagenQR    = qrcode.make(contenidoQR)
     imagenQR.save(rutaQR)
 
 
@@ -390,11 +392,11 @@ def generarVoucher(objeto, config):
 
     marca = marcasValidas[marcaIndice]
     color = coloresValidos[colorIndice]
-    tipo = tiposValidos[tipoIndice]
+    tipo  = tiposValidos[tipoIndice]
 
     fechaFormato = fechaHoraEntrada.replace("/", "-").replace(" ", "_").replace(":", "")
-    nombrePdf = f"voucher_{placa}_{fechaFormato}.pdf"
-    nombreQR = f"qr_{placa}_{fechaFormato}.png"
+    nombrePdf    = f"voucher_{placa}_{fechaFormato}.pdf"
+    nombreQR     = f"qr_{placa}_{fechaFormato}.png"
     if not os.path.exists("vouchers"):
         os.makedirs("vouchers")
     rutaPdf = os.path.join("vouchers", nombrePdf)
@@ -560,10 +562,12 @@ def calcularMonto(fechaHoraEntrada, fechaHoraSalida, montoPorHora, tiempoGracia)
     entrada = datetime.strptime(fechaHoraEntrada, "%d/%m/%Y %H:%M")
     salida  = datetime.strptime(fechaHoraSalida,  "%d/%m/%Y %H:%M")
 
-    diferencia = salida - entrada
-    minutosTotal = int(diferencia.total_seconds() / 60)
+    diferencia       = salida - entrada
+    minutosTotal     = int(diferencia.total_seconds() / 60)
+
     if minutosTotal <= tiempoGracia:
         return 0
+
     horasCobrar = minutosTotal / 60
     monto       = int(horasCobrar * montoPorHora)
     return monto
@@ -645,21 +649,21 @@ def generarFactura(objeto, config):
     Salida:
         - (None)
     """
-    placa  = objeto.obtenerInfo()[0]
-    marcaIndice = objeto.obtenerInfo()[1]
-    colorIndice = objeto.obtenerInfo()[2]
-    tipoIndice = objeto.obtenerInfo()[3]
-    ubicacion  = objeto.obtenerEstadia()[0]
+    placa            = objeto.obtenerInfo()[0]
+    marcaIndice      = objeto.obtenerInfo()[1]
+    colorIndice      = objeto.obtenerInfo()[2]
+    tipoIndice       = objeto.obtenerInfo()[3]
+    ubicacion        = objeto.obtenerEstadia()[0]
     fechaHoraEntrada = objeto.obtenerEstadia()[1]
-    fechaHoraSalida = objeto.obtenerEstadia()[2]
-    monto = objeto.obtenerPago()[0]
-    tipoPago = objeto.obtenerPago()[1]
+    fechaHoraSalida  = objeto.obtenerEstadia()[2]
+    monto            = objeto.obtenerPago()[0]
+    tipoPago         = objeto.obtenerPago()[1]
     marca = marcasValidas[marcaIndice]
     color = coloresValidos[colorIndice]
-    tipo = tiposValidos[tipoIndice]
+    tipo  = tiposValidos[tipoIndice]
     fechaFormato = fechaHoraSalida.replace("/", "-").replace(" ", "_").replace(":", "")
-    nombrePdf = f"factura_{placa}_{fechaFormato}.pdf"
-    nombreQR  = f"qr_factura_{placa}_{fechaFormato}.png"
+    nombrePdf    = f"factura_{placa}_{fechaFormato}.pdf"
+    nombreQR     = f"qr_factura_{placa}_{fechaFormato}.png"
     if not os.path.exists("facturas"):
         os.makedirs("facturas")
     rutaPdf = os.path.join("facturas", nombrePdf)
@@ -706,8 +710,8 @@ def generarReporteCierreDiario(listaObjetos, config):
     Salida:
         - (None)
     """
-    fechaHoy = datetime.now().strftime("%d/%m/%Y")
-    nombrePdf = f"cierre_diario_{fechaHoy.replace('/', '-')}.pdf"
+    fechaHoy     = datetime.now().strftime("%d/%m/%Y")
+    nombrePdf    = f"cierre_diario_{fechaHoy.replace('/', '-')}.pdf"
     if not os.path.exists("reportes"):
         os.makedirs("reportes")
     rutaPdf = os.path.join("reportes", nombrePdf)
@@ -723,12 +727,12 @@ def generarReporteCierreDiario(listaObjetos, config):
     pdf.set_text_color(0, 51, 153)
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_fill_color(220, 230, 255)
-    pdf.cell(20,  8, "Ubicac.", border=1, fill=True)
-    pdf.cell(30,  8, "Placa", border=1, fill=True)
-    pdf.cell(38,  8, "Entrada", border=1, fill=True)
-    pdf.cell(38,  8, "Salida", border=1, fill=True)
-    pdf.cell(28,  8, "Pago", border=1, fill=True)
-    pdf.cell(28,  8, "Monto", border=1, fill=True, ln=True)
+    pdf.cell(20,  8, "Ubicac.",    border=1, fill=True)
+    pdf.cell(30,  8, "Placa",      border=1, fill=True)
+    pdf.cell(38,  8, "Entrada",    border=1, fill=True)
+    pdf.cell(38,  8, "Salida",     border=1, fill=True)
+    pdf.cell(28,  8, "Pago",       border=1, fill=True)
+    pdf.cell(28,  8, "Monto",      border=1, fill=True, ln=True)
     pdf.set_text_color(0, 0, 0)
     pdf.set_font("Helvetica", "", 9)
     montoEfectivo = 0
@@ -743,16 +747,16 @@ def generarReporteCierreDiario(listaObjetos, config):
             fechaHoraEntrada = objeto.obtenerEstadia()[1]
             fechaHoraSalida  = objeto.obtenerEstadia()[2]
             monto            = objeto.obtenerPago()[0]
-            pdf.cell(20,  7, str(ubicacion),  border=1)
-            pdf.cell(30,  7, str(placa), border=1)
-            pdf.cell(38,  7, str(fechaHoraEntrada), border=1)
-            pdf.cell(38,  7, str(fechaHoraSalida), border=1)
-            pdf.cell(28,  7, convertirTipoPago(tipoPago), border=1)
-            pdf.cell(28,  7, f"{monto} col", border=1, ln=True)
+            pdf.cell(20,  7, str(ubicacion),                  border=1)
+            pdf.cell(30,  7, str(placa),                      border=1)
+            pdf.cell(38,  7, str(fechaHoraEntrada),           border=1)
+            pdf.cell(38,  7, str(fechaHoraSalida),            border=1)
+            pdf.cell(28,  7, convertirTipoPago(tipoPago),     border=1)
+            pdf.cell(28,  7, f"{monto} col",                  border=1, ln=True)
             if tipoPago == 1:
                 montoEfectivo += monto
             elif tipoPago == 2:
-                montoSinpe += monto
+                montoSinpe    += monto
             else:
                 montoTarjeta  += monto
             montoTotal += monto
@@ -769,7 +773,7 @@ def generarReporteCierreDiario(listaObjetos, config):
     pdf.output(rutaPdf)
     print(f"Reporte guardado en: {rutaPdf}")
 
-# esportar csv
+    # esportar csv
 
 def exportarCierreDiarioCSV(listaObjetos):
     """
@@ -792,442 +796,310 @@ def exportarCierreDiarioCSV(listaObjetos):
     archivo.write("sep=;\n")
 
     for objeto in listaObjetos:
-        placa  = objeto.obtenerInfo()[0]
+        placa    = objeto.obtenerInfo()[0]
         tipoPago = objeto.obtenerPago()[1]
 
         if placa != "" and tipoPago != 0:
-            ubicacion = objeto.obtenerEstadia()[0]
+            ubicacion        = objeto.obtenerEstadia()[0]
             fechaHoraEntrada = objeto.obtenerEstadia()[1]
             fechaHoraSalida  = objeto.obtenerEstadia()[2]
-            monto = objeto.obtenerPago()[0]
+            monto            = objeto.obtenerPago()[0]
             linea = f"{ubicacion};{placa};{fechaHoraEntrada};{fechaHoraSalida};{convertirTipoPago(tipoPago)};{monto}\n"
             archivo.write(linea)
     archivo.close()
     print(f"CSV exportado en: {rutaCsv}")
 
-#funciones alexis
-
-def observarEspacio(baseDatos, config, num, valor):
-    """
-    Funcionalidad:
-        Abre la ventana para observar un espacio del estacionamiento.
-        Si esta ocupado muestra la informacion del vehiculo y permite pagar.
-        Si esta libre permite estacionar un vehiculo.
-    Entrada:
-        - baseDatos (list): Lista de objetos Estacionamiento.
-        - config (Configuracion): Objeto con la configuracion del sistema.
-        - num (int): Numero del espacio seleccionado.
-        - valor (bool): True si el espacio esta ocupado, False si esta libre.
-    Salida:
-        - (None)
-    """
-    ventana = tk.Toplevel()
-    ventana.title(f"Estacionamiento: {num}")
-    ventana.geometry("400x300")
-    if not valor:
-        tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
-        tk.Label(ventana, text="Este espacio se encuentra libre.", font=("Arial", 10)).grid(row=1, column=1, columnspan=2, padx=10, pady=20)
-        tk.Button(ventana, text="Estacionar", width=10, height=3, bg="#B3F0FF", bd=0,
-                  command=lambda: [ventana.destroy(), estacionarVehiculo(baseDatos, config, num, ventana)],
-                  activebackground="#B3DDFF", cursor="hand2").grid(row=2, column=1, padx=10, pady=5)
-    else:
-        objeto = baseDatos[num - 1]
-        tk.Label(ventana, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
-        tk.Label(ventana, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{objeto.obtenerInfo()[0]}", font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{marcasValidas[objeto.obtenerInfo()[1]]}", font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{coloresValidos[objeto.obtenerInfo()[2]]}", font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
-        tk.Label(ventana, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
-        tk.Label(ventana, text=f"{objeto.obtenerEstadia()[1]}", font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
-        # solo se puede pagar si todavia no tiene tipo de pago asignado
-        if objeto.obtenerPago()[1] == 0:
-            tk.Button(ventana, text="Pagar", width=10, height=3, bg="#B3F0FF", bd=0,
-                      command=lambda: abrirOpcionesPago(baseDatos, config, num, ventana),
-                      activebackground="#B3DDFF", cursor="hand2").grid(row=5, column=1, padx=10, pady=5)
-        else:
-            tk.Label(ventana, text="Este vehiculo ya fue pagado.", font=("Arial", 10, "italic"), fg="green").grid(row=5, column=1, columnspan=2, padx=10, pady=5)
-    tk.Button(ventana, text="Regresar", width=10, height=3, bg="#B3F0FF", bd=0,
-              command=lambda: ventana.destroy(),
-              activebackground="#B3DDFF", cursor="hand2").grid(row=6, column=2, padx=10, pady=5)
-
-
-def abrirOpcionesPago(baseDatos, config, num, ventanaPadre):
-    """
-    Funcionalidad:
-        Abre la ventana de seleccion del tipo de pago para un vehiculo
-        ocupando un espacio, calcula el monto y registra el pago.
-    Entrada:
-        - baseDatos (list): Lista de objetos Estacionamiento.
-        - config (Configuracion): Objeto con la configuracion del sistema.
-        - num (int): Numero del espacio a pagar.
-        - ventanaPadre (Toplevel): Ventana de observarEspacio para cerrarla al pagar.
-    Salida:
-        - (None)
-    """
-    ventana = tk.Toplevel()
-    ventana.title("Seleccion de tipo de pago")
-    ventana.geometry("400x150")
-    tk.Label(ventana, text="Tipo de Pago", font=("Arial", 16, "bold")).grid(row=0, column=0, columnspan=2, padx=10, pady=5)
-    tk.Label(ventana, text="Seleccione el tipo de pago: ").grid(row=1, column=0, padx=10, pady=5)
-    comboTipoPago = ttk.Combobox(ventana, values=["Efectivo", "SINPE", "Tarjeta"], state="readonly")
-    comboTipoPago.grid(row=1, column=1, padx=10)
-    comboTipoPago.current(0)
-
-    def pagar():
-        """
-        Funcionalidad:
-            Registra la hora de salida y el tipo de pago elegido,
-            calcula el monto, genera el voucher/factura y guarda la BD.
-        Entrada:
-            - (None)
-        Salida:
-            - (None)
-        """
-        seleccion = comboTipoPago.get()
-        if seleccion == "Efectivo":
-            opcion = 1
-        elif seleccion == "SINPE":
-            opcion = 2
-        else:
-            opcion = 3
-
-        objeto = baseDatos[num - 1]
-        horaSalida = datetime.now().strftime("%d/%m/%Y %H:%M")
-        monto = calcularMonto(
-            objeto.obtenerEstadia()[1],
-            horaSalida,
-            config.obtenerMontoPorHora(),
-            config.obtenerTiempoGracia()
-        )
-        objeto.asignarEstadia([objeto.obtenerEstadia()[0], objeto.obtenerEstadia()[1], horaSalida])
-        objeto.asignarPago((monto, opcion))
-        generarFactura(objeto, config)
-        guardarBaseDatos(baseDatos)
-        ventana.destroy()
-        ventanaPadre.destroy()
-        messagebox.showinfo("Exito", f"Pago realizado con exito.\nMonto: {monto} colones.\nFactura generada en carpeta 'facturas'.")
-
-    tk.Button(ventana, text="Pagar", width=10, height=2, bg="#B3F0FF", bd=0,
-              command=pagar, activebackground="#B3DDFF", cursor="hand2").grid(row=2, column=0, padx=10, pady=10)
-    tk.Button(ventana, text="Cancelar", width=10, height=2, bg="#B3F0FF", bd=0,
-              command=ventana.destroy, activebackground="#B3DDFF", cursor="hand2").grid(row=2, column=1, padx=10, pady=10)
-
+# funciones alexis
 
 def verEstacionamiento(tamanno, baseDatos, config):
     """
-    Funcionalidad:
-        Abre la ventana principal del estacionamiento con los espacios
-        representados graficamente en verde (libre) o rojo (ocupado).
-    Entrada:
-        - tamanno (int): Tamanno total del estacionamiento.
-        - baseDatos (list): Lista de objetos Estacionamiento.
-        - config (Configuracion): Objeto con la configuracion del sistema.
-    Salida:
-        - (None)
     """
+    print("a")
     ventana = tk.Toplevel()
     ventana.title("Estacionamiento")
     ventana.geometry("1020x720")
     tk.Label(ventana, text="Ver Estacionamiento", font=("Arial", 20, "bold")).grid(row=0, column=1, padx=10, pady=5)
     marcoEstacionamientos = tk.Frame(ventana)
     marcoEstacionamientos.grid(row=1, column=0, columnspan=3, sticky="w")
-
-    def cambiarPagina(baseDatos, modo, pagina):
+    def CambiarPagina(baseDatos, modo, pagina):
         """
-        Funcionalidad:
-            Cambia de pagina en la vista del estacionamiento.
-            Modo 0 avanza a la siguiente pagina, modo 1 regresa a la anterior.
-        Entrada:
-            - baseDatos (list): Lista de objetos Estacionamiento.
-            - modo (int): 0 para siguiente pagina, 1 para pagina anterior.
-            - pagina (int): Pagina actual.
-        Salida:
-            - pagina (int): Nueva pagina.
+        Funcionamiento: cambia de pagina dependiendo de que modo se use: 0 para ir a la siguiente pagina, 1 para ir a la anterior
         """
-        if modo == 0:
-            generarUI(baseDatos, pagina + 1)
-            return pagina + 1
-        elif modo == 1:
-            generarUI(baseDatos, pagina - 1)
-            return pagina - 1
+        if modo==0:
+            generarUI(baseDatos,pagina+1)
+            return pagina+1
+        elif modo==1:
+            generarUI(baseDatos,pagina-1)
+            return pagina-1
         print("Error al tratar de llamar esta funcion, uso de modo incorrecto")
-
+    def observarEspacio(baseDatos, num, valor, config):
+        verEspacio = tk.Tk()
+        verEspacio.title(f"Estacionamiento: {num}")
+        verEspacio.geometry("300x300")
+        def opcionesPago():
+            menupago1 = tk.Tk()
+            menupago1.title(f"Seleccion de tipo de pago")
+            menupago1.geometry("400x150")
+            tk.Label(menupago1, text=f"Tipo de Pago", font=("Arial", 20, "bold")).grid(row=0, column=0, padx=10, pady=5)
+            tk.Label(menupago1,text="Seleccione el tipo de pago: ").grid(row=1, column=0, padx=10, pady=5)
+            tipoPago=ttk.Combobox(menupago1, values=["Efectivo","Sinpe","Targeta"],state="readonly")
+            tipoPago.grid(row=1,column=1)
+            tipoPago.current(0)
+            tk.Button(menupago1, text="Pagar", width=8, height=3, cursor="hand2", command=lambda:pagar()).grid(row=5, column=1, padx=10, pady=5)
+            def pagar():
+                def cerrarPestannas():
+                    verEspacio.destroy()
+                    menupago1.destroy()
+                    menupago2.destroy()
+                    generarUI(baseDatos,pagina=0)
+                menupago2 = tk.Tk()
+                menupago2.title(f"pago")
+                menupago2.geometry("250x100")
+                seleccion = tipoPago.get()
+                if seleccion=="Efectivo":
+                    opcion=1
+                elif seleccion=="Sinpe":
+                    opcion=2
+                elif seleccion=="Targeta":
+                    opcion=3
+                baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],datetime.datetime.now().strftime("%d/%m/%Y %H:%M")])
+                baseDatos[num-1].asignarPago((baseDatos[num-1].obtenerPago()[0],opcion))
+                generarVoucher(baseDatos[num-1],config)
+                guardarBaseDatos(baseDatos)
+                tk.Label(menupago2, text=f"Pago realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+                tk.Button(menupago2, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+            menupago1.mainloop()
+        if not valor:
+            tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=0, pady=5)
+            tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+            tk.Entry(verEspacio, font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+            tk.Button(verEspacio, text="Estacionar", font=("Arial", 10, "bold"), width=8, height=3, bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
+        else:
+            tk.Label(verEspacio, text=f"Campo: {num}", font=("Arial", 20, "bold")).grid(row=0, column=2, padx=10, pady=5)
+            tk.Label(verEspacio, text="Placa: ", font=("Arial", 10)).grid(row=1, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerInfo()[0]}",font=("Arial", 10)).grid(row=1, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Marca: ", font=("Arial", 10)).grid(row=2, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{marcasValidas[baseDatos[num-1].obtenerInfo()[1]]}", font=("Arial", 10)).grid(row=2, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Color: ", font=("Arial", 10)).grid(row=3, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{coloresValidos[baseDatos[num-1].obtenerInfo()[2]]}", font=("Arial", 10)).grid(row=3, column=2, padx=5, pady=2)
+            tk.Label(verEspacio, text="Hora Entrada: ", font=("Arial", 10)).grid(row=4, column=1, padx=10, pady=5)
+            tk.Label(verEspacio, text=f"{baseDatos[num-1].obtenerEstadia()[1]}",font=("Arial", 10)).grid(row=4, column=2, padx=5, pady=2)
+            tk.Button(verEspacio, text="Pagar",font=("Arial", 10, "bold"), width=8, height=3,bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", command=lambda: opcionesPago(), activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
+        tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: ventana.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
+        verEspacio.mainloop()
+        return
     def generarUI(baseDatos, pagina=0):
-        """
-        Funcionalidad:
-            Genera la interfaz grafica de los espacios del estacionamiento
-            para la pagina indicada.
-        Entrada:
-            - baseDatos (list): Lista de objetos Estacionamiento.
-            - pagina (int): Pagina a mostrar.
-        Salida:
-            - (None)
-        """
+        #lo que hago acá, es borrar widgets ya que c
         for widget in marcoEstacionamientos.winfo_children():
             widget.destroy()
-        for i in range(2):
-            indice = 0
-            for o in range(1, 9):
-                indice = o + i * 8 + pagina * 16
-                bandera = False
-                if indice == tamanno:
+        for i in range(0,3,2):
+            for o in range(1,8):
+                indice=o+i*7+pagina*14
+                bandera=False
+                if indice==tamanno:
                     break
                 for carro in baseDatos:
-                    if int(carro.obtenerEstadia()[0]) == indice and carro.obtenerInfo()[0] != "":
+                    if int(carro.obtenerEstadia()[0]) == indice and carro.obtenerInfo()[0] != "" and carro.obtenerEstadia()[2]=="":
                         bandera = True
-                borde = tk.Frame(marcoEstacionamientos,
-                                 bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
-                borde.grid(row=i, column=o, padx=10, pady=80)
-                # se usa lambda porque es la unica forma de pasar parametros en command,
-                # sin este, el comando se ejecuta solo y usar el boton no serviria.
-                # ademas, asigno variables en el lambda para que cada boton tenga
-                # parametros unicos y no el mismo por ser generados en un for
-                tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"),
-                          width=3, height=3,
-                          bg="#FF5959" if bandera else "#59FF7D",
-                          fg="#ffffff", bd=0,
-                          command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, config, indice, valor=bandera),
-                          activebackground="#FF3F4F" if bandera else "#2EFF74",
-                          cursor="hand2").grid()
-            if indice + 1 >= tamanno:
-                if 16 >= tamanno:
-                    if 8 >= tamanno and i == 0:
+                borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
+                borde.grid(row=i,column=o,padx=10,pady=80)
+                #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria
+                #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
+                tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera, config=config), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
+            if indice+1>=tamanno:
+                if 14>=tamanno:
+                    if 7>=tamanno and i==0:
                         break
-                    if i == 1:
+                    if i==1:
                         break
-                borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=0, column=9, padx=80, pady=80, sticky="e")
-                tk.Button(borde, text="Anterior", width=8, height=5, bg="#B6FFFB", bd=0,
-                          command=lambda pagina=pagina: cambiarPagina(baseDatos, modo=1, pagina=pagina),
-                          activebackground="#B3F0FF", cursor="hand2").grid()
+                borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
+                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
+                tk.Button(borde, text="Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
                 break
-            elif pagina == 0:
-                if 16 >= tamanno:
-                    if 8 >= tamanno and i == 0:
+            elif pagina==0:
+                if 14>=tamanno:
+                    if 7>=tamanno and i==0:
                         break
-                    if i == 1:
+                    if i==1:
                         break
-                borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=0, column=9, padx=80, pady=80, sticky="e")
-                tk.Button(borde, text="Siguente", width=8, height=5, bg="#B6FFFB", bd=0,
-                          command=lambda pagina=pagina: cambiarPagina(baseDatos, modo=0, pagina=pagina),
-                          activebackground="#B3F0FF", cursor="hand2").grid()
+                borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
+                borde.grid(row=0,column=9,padx=80,pady=80, sticky="e")
+                tk.Button(borde, text="Siguente", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
             else:
-                borde = tk.Frame(marcoEstacionamientos, bg="#E5FFFE", padx=5, pady=5)
-                borde.grid(row=i, column=9, padx=80, pady=80)
-                tk.Button(borde, text="Siguente" if i == 0 else "Anterior", width=8, height=5, bg="#B6FFFB", bd=0,
-                          command=lambda i=i, pagina=pagina: cambiarPagina(baseDatos, modo=0, pagina=pagina) if i == 0 else cambiarPagina(baseDatos, modo=1, pagina=pagina),
-                          activebackground="#B3F0FF", cursor="hand2").grid()
-
+                borde = tk.Frame(marcoEstacionamientos, bg="#C2D2FF", padx=5, pady=5)
+                borde.grid(row=i,column=9,padx=80,pady=80)
+                tk.Button(borde, text="Siguente" if i==0 else "Anterior", font=("Arial", 10, "bold"),width=8, height=5, bg="#B6CAFF", bd=0, command=lambda i=i, pagina=pagina:CambiarPagina(baseDatos,modo=0, pagina=pagina) if i==0 else CambiarPagina(baseDatos, modo=1,pagina=pagina) , activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid()
+            borde = tk.Frame(marcoEstacionamientos, bg="#6EE2FF", padx=5, pady=5)
+            borde.grid(row=i,column=o,padx=10,pady=80)
+            tk.Button(borde, text="", font=("Arial", 30, "bold"), width=3, height=3, bg="#59DEFF", fg="#000000", bd=0, activebackground="#59DEFF").grid()
     generarUI(baseDatos)
+    return baseDatos
 
 
-def asignarInfoXml(baseDatos, tipo):
-    """
-    Funcionalidad:
-        Construye el bloque XML con la informacion de todos los vehiculos
-        que tienen el tipo de pago indicado.
-    Entrada:
-        - baseDatos (list): Lista de objetos Estacionamiento.
-        - tipo (int): Tipo de pago a filtrar (1=efectivo, 2=SINPE, 3=tarjeta).
-    Salida:
-        - xml (str): Bloque XML con los carros de ese tipo de pago.
-    """
-    xml = ""
+def asignarInfo(baseDatos,tipo):
+    xml=""
     for carro in baseDatos:
-        if carro.obtenerPago()[1] == tipo:
-            xml += "\t\t<carro>\n"
-            xml += f"\t\t\t<placa>{carro.obtenerInfo()[0]}</placa>\n"
-            xml += f"\t\t\t<marca>{marcasValidas[carro.obtenerInfo()[1]]}</marca>\n"
-            xml += f"\t\t\t<color>{coloresValidos[carro.obtenerInfo()[2]]}</color>\n"
-            xml += f"\t\t\t<tipo>{tiposValidos[carro.obtenerInfo()[3]]}</tipo>\n"
-            xml += f"\t\t\t<ubicacion>{carro.obtenerEstadia()[0]}</ubicacion>\n"
-            xml += f"\t\t\t<fechaHoraEntrada>{carro.obtenerEstadia()[1]}</fechaHoraEntrada>\n"
-            xml += f"\t\t\t<fechaHoraSalida>{carro.obtenerEstadia()[2]}</fechaHoraSalida>\n"
-            xml += f"\t\t\t<monto>{carro.obtenerPago()[0]}</monto>\n"
-            xml += "\t\t</carro>\n"
+        print(carro.obtenerPago()[1])
+        if carro.obtenerPago()[1]==tipo:
+            xml+=f"\t\t<carro>\n"
+            xml+=f"\t\t\t<placa>{carro.obtenerInfo()[0]}</placa>\n"
+            xml+=f"\t\t\t<marca>{carro.obtenerInfo()[1]}</marca>\n"
+            xml+=f"\t\t\t<color>{carro.obtenerInfo()[2]}</color>\n"
+            xml+=f"\t\t\t<tipo>{carro.obtenerInfo()[3]}</tipo>\n"
+            xml+=f"\t\t\t<ubicacion>{carro.obtenerEstadia()[0]}</ubicacion>\n"
+            xml+=f"\t\t\t<fechaHoraEntrada>{carro.obtenerEstadia()[1]}</fechaHoraEntrada>\n"
+            xml+=f"\t\t\t<fechaHoraSalida>{carro.obtenerEstadia()[2]}</fechaHoraSalida>\n"
+            xml+=f"\t\t</carro>\n"
     return xml
 
-
 def generarReporteTipoPago(baseDatos):
-    """
-    Funcionalidad:
-        Genera el reporte de cierre por tipo de pago en formato XML,
-        agrupando los vehiculos pagados en efectivo, SINPE y tarjeta.
-    Entrada:
-        - baseDatos (list): Lista de objetos Estacionamiento.
-    Salida:
-        - (None)
-    """
-    efectivo = asignarInfoXml(baseDatos, 1)
-    sinpe    = asignarInfoXml(baseDatos, 2)
-    tarjeta  = asignarInfoXml(baseDatos, 3)
-
-    xml  = "<reporte>\n"
-    xml += "\t<efectivo>\n"
-    xml += efectivo
-    xml += "\t</efectivo>\n"
-    xml += "\t<sinpe>\n"
-    xml += sinpe
-    xml += "\t</sinpe>\n"
-    xml += "\t<tarjeta>\n"
-    xml += tarjeta
-    xml += "\t</tarjeta>\n"
-    xml += "</reporte>"
-
-    if not os.path.exists("reportes"):
-        os.makedirs("reportes")
-    rutaXml = os.path.join("reportes", "Reporte-Por-Tipo-De-Pago.xml")
-    archivo = open(rutaXml, "w", encoding="utf-8")
+    efectivo=asignarInfo(baseDatos,1)
+    sinpe=asignarInfo(baseDatos,2)
+    targeta=asignarInfo(baseDatos,3)
+    xml="<reporte>\n"
+    xml+="\t<efectivo>\n"
+    xml+=efectivo
+    xml+="\t</efectivo>\n"
+    xml+="\t<sinpe>\n"
+    xml+=sinpe
+    xml+="\t<sinpe>\n"
+    xml+="\t<targeta>\n"
+    xml+=targeta
+    xml+="\t</targeta>\n"
+    xml+="</reporte>"
+    archivo = open(f"Reporte-Por-Tipo-De-Pago.xml","w")
     archivo.write(xml)
-    archivo.close()
-    messagebox.showinfo("Exito", f"Reporte por tipo de pago generado en:\n{rutaXml}")
-
-
-def esNumero(valor):
-    """
-    Funcionalidad:
-        Verifica si una cadena puede convertirse en un numero entero.
-    Entrada:
-        - valor (str): Cadena a validar.
-    Salida:
-        - esValido (bool): True si la cadena es un numero entero valido.
-    """
-    try:
-        int(valor)
-        return True
-    except ValueError:
-        return False
-
+    return
 
 def tamannoEstacionamiento(config):
-    """
-    Funcionalidad:
-        Abre la ventana para modificar el tamanno del estacionamiento
-        y guarda el cambio en la configuracion.
-    Entrada:
-        - config (Configuracion): Objeto con la configuracion del sistema.
-    Salida:
-        - (None)
-    """
-    ventana = tk.Toplevel()
-    ventana.title("Cambiar tamaño de estacionamiento")
+    ventana = tk.Tk()
+    ventana.title(f"Seleccion de tipo de pago")
     ventana.geometry("450x150")
-    ventana.resizable(False, False)
-    tk.Label(ventana, text="Cambiar tamaño de estacionamiento", font=("Arial", 10, "bold")).grid(row=0, column=0, columnspan=2, padx=10, pady=5)
-    tk.Label(ventana, text="Ingrese el nuevo tamaño: ").grid(row=1, column=0, padx=10, pady=5)
-    entrada = tk.Entry(ventana, font=("Arial", 10))
-    entrada.grid(row=1, column=1, padx=10, pady=2)
-
-    def confirmar():
-        """
-        Funcionalidad:
-            Valida el numero ingresado, confirma con el usuario y
-            actualiza el tamanno en la configuracion.
-        Entrada:
-            - (None)
-        Salida:
-            - (None)
-        """
-        valor = entrada.get()
-        if not esNumero(valor) or valor == "":
-            messagebox.showerror("Error", "Solo puede ingresar datos numericos.")
-            return
-        confirmacion = messagebox.askyesno("Confirmar", f"Desea cambiar el tamaño a {valor}?")
-        if confirmacion:
-            config.asignarTamanno(int(valor))
+    def validarEntrada():
+        validacion=esNumero(entrada.get())
+        def cambiar():
+            def cerrarPestannas():
+                ventanaCambio.destroy()
+                ventana2.destroy()
+                ventana.destroy()
+            ventanaCambio = tk.Tk()
+            ventanaCambio.title(f"Cambiar Tamaño")
+            ventanaCambio.geometry("250x100")
+            tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+            config.asignarTamanno(int(entrada.get()))
             guardarConfiguracion(config)
-            messagebox.showinfo("Exito", "Cambio realizado con exito.")
-            ventana.destroy()
-
-    tk.Button(ventana, text="Cambiar", command=confirmar).grid(row=2, column=0, pady=10)
-    tk.Button(ventana, text="Atras", command=ventana.destroy).grid(row=2, column=1, pady=10)
-
+            tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+        if validacion and entrada.get()!="":
+            ventana2 = tk.Tk()
+            ventana2.title(f"Confirmacion")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
+        else:
+            ventana2 = tk.Tk()
+            ventana2.title(f"Error!")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="continuar", command=lambda: ventana2.destroy()).grid(row=1,column=0,sticky="e")
+        return
+    tk.Label(ventana, text=f"Cambiar tamaño de estacionamiento", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=5)
+    tk.Label(ventana,text="ingrese el nuevo tamaño: ").grid(row=1, column=0, padx=0, pady=5)
+    entrada=tk.Entry(ventana, font=("Arial", 10))
+    entrada.grid(row=1, column=1, padx=0, pady=2)
+    tk.Button(ventana, text="Cambiar", command=validarEntrada).grid(row=2,column=0)
+    tk.Button(ventana, text="Atras", command=lambda:ventana.destroy()).grid(row=2,column=1,sticky="e")
+    return
 
 def tiempoGraciaEnMinutos(config):
-    """
-    Funcionalidad:
-        Abre la ventana para modificar el tiempo de gracia en minutos
-        y guarda el cambio en la configuracion.
-    Entrada:
-        - config (Configuracion): Objeto con la configuracion del sistema.
-    Salida:
-        - (None)
-    """
-    ventana = tk.Toplevel()
-    ventana.title("Cambiar tiempo de gracia")
+    ventana = tk.Tk()
+    ventana.title(f"Seleccion de tipo de pago")
     ventana.geometry("450x150")
-    ventana.resizable(False, False)
-    tk.Label(ventana, text="Cambiar tiempo de gracia en minutos", font=("Arial", 10, "bold")).grid(row=0, column=0, columnspan=2, padx=10, pady=5)
-    tk.Label(ventana, text="Ingrese el nuevo tiempo: ").grid(row=1, column=0, padx=10, pady=5)
-    entrada = tk.Entry(ventana, font=("Arial", 10))
-    entrada.grid(row=1, column=1, padx=10, pady=2)
-
-    def confirmar():
-        """
-        Funcionalidad:
-            Valida el numero ingresado, confirma con el usuario y
-            actualiza el tiempo de gracia en la configuracion.
-        Entrada:
-            - (None)
-        Salida:
-            - (None)
-        """
-        valor = entrada.get()
-        if not esNumero(valor) or valor == "":
-            messagebox.showerror("Error", "Solo puede ingresar datos numericos.")
-            return
-        confirmacion = messagebox.askyesno("Confirmar", f"Desea cambiar el tiempo de gracia a {valor} minutos?")
-        if confirmacion:
-            config.asignarTiempoGracia(int(valor))
+    def validarEntrada():
+        validacion=esNumero(entrada.get())
+        def cambiar():
+            def cerrarPestannas():
+                ventanaCambio.destroy()
+                ventana2.destroy()
+                ventana.destroy()
+            ventanaCambio = tk.Tk()
+            ventanaCambio.title(f"Cambiar Tiempo de Gracia en Minutos")
+            ventanaCambio.geometry("250x100")
+            tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+            config.asignarTiempoGracia(int(entrada.get()))
             guardarConfiguracion(config)
-            messagebox.showinfo("Exito", "Cambio realizado con exito.")
-            ventana.destroy()
-
-    tk.Button(ventana, text="Cambiar", command=confirmar).grid(row=2, column=0, pady=10)
-    tk.Button(ventana, text="Atras", command=ventana.destroy).grid(row=2, column=1, pady=10)
-
+            tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+        if validacion and entrada.get()!="":
+            ventana2 = tk.Tk()
+            ventana2.title(f"Confirmacion")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
+        else:
+            ventana2 = tk.Tk()
+            ventana2.title(f"Error!")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="continuar", command=lambda: ventana2.destroy()).grid(row=1,column=0,sticky="e")
+        return
+    tk.Label(ventana, text=f"Cambiar tiempo de gracia en minutos", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=5)
+    tk.Label(ventana,text="ingrese el nuevo tiempo: ").grid(row=1, column=0, padx=0, pady=5)
+    entrada=tk.Entry(ventana, font=("Arial", 10))
+    entrada.grid(row=1, column=1, padx=0, pady=2)
+    tk.Button(ventana, text="Cambiar", command=validarEntrada).grid(row=2,column=0)
+    tk.Button(ventana, text="Atras", command=lambda:ventana.destroy()).grid(row=2,column=1,sticky="e")
+    return
 
 def montoPorHora(config):
-    """
-    Funcionalidad:
-        Abre la ventana para modificar el monto cobrado por hora
-        y guarda el cambio en la configuracion.
-    Entrada:
-        - config (Configuracion): Objeto con la configuracion del sistema.
-    Salida:
-        - (None)
-    """
-    ventana = tk.Toplevel()
-    ventana.title("Modificar monto por hora")
+    ventana = tk.Tk()
+    ventana.title(f"Seleccion de tipo de pago")
     ventana.geometry("450x150")
-    ventana.resizable(False, False)
-    tk.Label(ventana, text="Modificar monto por hora", font=("Arial", 10, "bold")).grid(row=0, column=0, columnspan=2, padx=10, pady=5)
-    tk.Label(ventana, text="Ingrese el nuevo monto: ").grid(row=1, column=0, padx=10, pady=5)
-    entrada = tk.Entry(ventana, font=("Arial", 10))
-    entrada.grid(row=1, column=1, padx=10, pady=2)
-
-    def confirmar():
-        """
-        Funcionalidad:
-            Valida el numero ingresado, confirma con el usuario y
-            actualiza el monto por hora en la configuracion.
-        Entrada:
-            - (None)
-        Salida:
-            - (None)
-        """ 
-        valor = entrada.get()
-        if not esNumero(valor) or valor == "":
-            messagebox.showerror("Error", "Solo puede ingresar datos numericos.")
-            return
-        confirmacion = messagebox.askyesno("Confirmar", f"Desea cambiar el monto por hora a {valor} colones?")
-        if confirmacion:
-            config.asignarMontoPorHora(int(valor))
+    def validarEntrada():
+        validacion=esNumero(entrada.get())
+        def cambiar():
+            def cerrarPestannas():
+                ventanaCambio.destroy()
+                ventana2.destroy()
+                ventana.destroy()
+            ventanaCambio = tk.Tk()
+            ventanaCambio.title(f"Cambiar Monto por Hora")
+            ventanaCambio.geometry("250x100")
+            tk.Label(ventanaCambio, text=f"Cambio realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
+            config.asignarMontoPorHora(int(entrada.get()))
             guardarConfiguracion(config)
-            messagebox.showinfo("Exito", "Cambio realizado con exito.")
-            ventana.destroy()
-    tk.Button(ventana, text="Cambiar", command=confirmar).grid(row=2, column=0, pady=10)
-    tk.Button(ventana, text="Atras", command=ventana.destroy).grid(row=2, column=1, pady=10)
+            tk.Button(ventanaCambio, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
+        if validacion and entrada.get()!="":
+            ventana2 = tk.Tk()
+            ventana2.title(f"Confirmacion")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"desea confirmar la acción?", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="Aceptar").grid(row=1,column=0,sticky="w")
+            tk.Button(ventana2, text="Atras", command=lambda: ventana2.destroy()).grid(row=1,column=1,sticky="e")
+        else:
+            ventana2 = tk.Tk()
+            ventana2.title(f"Error!")
+            ventana2.geometry("300x100")
+            tk.Label(ventana2, text=f"solo puede ingresar datos numericos", font=("Arial", 10, "bold")).grid(row=0, column=0, pady=5)
+            tk.Button(ventana2, text="continuar", command=lambda: ventana2.destroy()).grid(row=1,column=0,sticky="e")
+        return
+    tk.Label(ventana, text=f"Modificar monto por hora", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=10, pady=5)
+    tk.Label(ventana,text="ingrese el nuevo monto: ").grid(row=1, column=0, padx=0, pady=5)
+    entrada=tk.Entry(ventana, font=("Arial", 10))
+    entrada.grid(row=1, column=1, padx=0, pady=2)
+    tk.Button(ventana, text="Cambiar", command=validarEntrada).grid(row=2,column=0)
+    tk.Button(ventana, text="Atras", command=lambda:ventana.destroy()).grid(row=2,column=1,sticky="e")
+    return
+
+def esNumero(num):
+    try:
+        int(num)
+        return True
+    except:
+        return False

@@ -1,10 +1,12 @@
-
+# Creado por: Joel Porras y Alexis Torres
+# Fecha de creación: 15/06/2026 7:16 am
+# Ultima modificación: 30/06/2026 12pm
+# versión: 3.14
 
 
 import tkinter as tk
 from tkinter import messagebox
-from funionesJoel import *
-from funcionesAlexiscopy import verEstacionamiento, observarEspacio
+from funciones import *
 from manejoArchivos import *
 from clase import Configuracion
 
@@ -36,7 +38,6 @@ def controladorArranque():
         abrirVentanaPrincipal()
     else:
         abrirVentanaConfiguracion(esInicial=True)
-
 
 def controladorLlenadoMasivo():
     """
@@ -135,31 +136,26 @@ def abrirVentanaPrincipal():
           ).pack(pady=5)
     # Ver estacionamiento
     marcoVer = tk.LabelFrame(ventana, text="2. Ver estacionamiento", padx=10, pady=5)
-    marcoVer.pack(pady=5, padx=20, fill="x")
-    tk.Button(marcoVer, text="a. Observar espacio",
-          width=28,
+    marcoVer.pack(pady=5, padx=20, fill="x") 
+    tk.Button(marcoVer, text="a. Observar espacio", width=28,
           command=lambda: verEstacionamiento(config.obtenerTamanno(), config.obtenerListaObjetos(), config)
           ).pack(pady=3)
     tk.Button(marcoVer, text="b. Estacionar un vehiculo",
-          width=28,
-          command=lambda: abrirSeleccionEspacio()
-          ).pack(pady=3)
+          width=28, command=lambda: abrirSeleccionEspacio()).pack(pady=3)
     # Reportes 
     marcoReportes = tk.LabelFrame(ventana, text="3. Reportes", padx=10, pady=5)
     marcoReportes.pack(pady=5, padx=20, fill="x")
     tk.Button(marcoReportes, text="a. Cierre diario",
           width=28,
           command=controladorCierreDiario).pack(pady=3)
-    tk.Button(marcoReportes, text="b. Cierre por tipo de pago",     width=28).pack(pady=3)
-    tk.Button(marcoReportes, text="c. Exportar cierre diario a CSV",
-          width=28,
-          command=controladorExportarCSV).pack(pady=3)
+    tk.Button(marcoReportes, text="b. Cierre por tipo de pago",     width=28, command=lambda:generarReporteTipoPago(baseDatos=config.obtenerListaObjetos())).pack(pady=3)
+    tk.Button(marcoReportes, text="c. Exportar cierre diario a CSV", width=28, command=controladorExportarCSV).pack(pady=3)
     # Configuracion 
     marcoConfig = tk.LabelFrame(ventana, text="4. Configuracion", padx=10, pady=5)
     marcoConfig.pack(pady=5, padx=20, fill="x")
-    tk.Button(marcoConfig, text="a. Tamanno del estacionamiento",  width=28).pack(pady=3)
-    tk.Button(marcoConfig, text="b. Tiempo de gracia en minutos",  width=28).pack(pady=3)
-    tk.Button(marcoConfig, text="c. Modificar monto por hora",     width=28).pack(pady=3)
+    tk.Button(marcoConfig, text="a. Tamanno del estacionamiento",  width=28, command=lambda:tamannoEstacionamiento(config)).pack(pady=3)
+    tk.Button(marcoConfig, text="b. Tiempo de gracia en minutos",  width=28, command=lambda:tiempoGraciaEnMinutos(config)).pack(pady=3)
+    tk.Button(marcoConfig, text="c. Modificar monto por hora",     width=28, command=lambda:montoPorHora(config)).pack(pady=3)
     #Acerca de 
     tk.Button(ventana, text="5. Acerca de",
               width=30, height=2).pack(pady=5)
