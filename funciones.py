@@ -13,14 +13,15 @@ import os
 from manejoArchivos import guardarBaseDatos
 import tkinter as tk
 from tkinter import messagebox
-
+from manejoArchivos import *
+from fpdf import FPDF
 
 """
 uso os para interactuar con el sistema de archivos en especifico
 os.path.exists que verifica si la carpeta vouchers existe, os.makedirs que crea la carpeta vouchers si no existe, os.path.join que une rutas de 
 forma compatible con cualquier sistema operativo. Pickle no puede realizar estas operaciones ya que solo sirve para serializar y guardar objetos Python en memoria secundaria
 """
-from fpdf import FPDF
+
 
 marcasValidas = ["Toyota", "Honda", "Hyundai", "Kia", "Nissan",
                   "Suzuki", "Mitsubishi", "Mazda", "Ford", "Chevrolet",
@@ -806,9 +807,6 @@ def exportarCierreDiarioCSV(listaObjetos):
 
 #funciones alexis
 
-import tkinter as tk
-from tkinter import ttk, messagebox
-from manejoArchivos import *
 
 
 def observarEspacio(baseDatos, config, num, valor):
