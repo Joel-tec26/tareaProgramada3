@@ -26,6 +26,8 @@ se  usa lambda porque es la unica forma de pasar parametros en command, sin este
 parametros unicos y no el mismo por ser generados en un for
 """
 
+# variables globales
+
 marcasValidas = ["Toyota", "Honda", "Hyundai", "Kia", "Nissan",
                   "Suzuki", "Mitsubishi", "Mazda", "Ford", "Chevrolet",
                   "Land Rover", "GMC", "Saturn"]
@@ -38,6 +40,8 @@ tiposValidos = ["Sedan", "SUV", "Pickup", "Hatchback", "Van",
                  "Coupe", "Convertible"]
 
 archivojson = "vehicle_data.json"
+
+# funciones
 
 def cargarJson():
     """
