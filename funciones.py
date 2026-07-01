@@ -956,6 +956,7 @@ def generarReporteTipoPago(baseDatos):
     xml+="</reporte>"
     archivo = open(f"Reporte-Por-Tipo-De-Pago.xml","w")
     archivo.write(xml)
+    messagebox.showinfo("Exito",f"Reporte XML Generado con éxito")
     return
 
 def tamannoEstacionamiento(config):
