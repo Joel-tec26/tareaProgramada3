@@ -1,6 +1,6 @@
 # Creado por: Joel Porras y Alexis Torres
 # Fecha de creación: 15/06/2026 7:16 am
-# Ultima modificación: 30/06/2026 12pm
+# Ultima modificación: 30/06/2026 20:00
 # versión: 3.14
 
 # importacion de librerias
@@ -183,8 +183,8 @@ def construirDiccionarioRestringido(datosJson, cantidadVehiculos, montoPorHora):
                               fechaHoraEntrada, fechaHoraSalida, monto, tipoPago]}.
     """
     diccionario  = {}
-    contador     = 1
-    indiceJson   = 0
+    contador  = 1
+    indiceJson  = 0
     while contador <= cantidadVehiculos:
         if indiceJson < len(datosJson):
             registro = datosJson[indiceJson]
@@ -371,7 +371,6 @@ def generarCodigoQR(placa, marca, tipo, fechaHoraEntrada, rutaQR):
     imagenQR = qrcode.make(contenidoQR)
     imagenQR.save(rutaQR)
 
-
 def generarVoucher(objeto, config):
     """
     Funcionalidad:
@@ -486,7 +485,7 @@ def estacionarVehiculo(baseDatos, config, num):
     entradaPlaca.grid(row=1, column=1, padx=10)
     tk.Label(ventana, text="Marca:", font=("Arial", 10)).grid(row=2, column=0, sticky="e", padx=10, pady=5)
     marcaVar = tk.StringVar(value=marcasValidas[0])
-    tk.OptionMenu(ventana, marcaVar, *marcasValidas).grid(row=2, column=1, padx=10, sticky="w")
+    tk.OptionMenu(ventana, marcaVar, *marcasValidas).grid(row=2, column=1, padx=10, sticky="w") # aquí uso el * para en ves de agarrar una lista ya le entra cada parametro por separado
     tk.Label(ventana, text="Color:", font=("Arial", 10)).grid(row=3, column=0, sticky="e", padx=10, pady=5)
     colorVar = tk.StringVar(value=coloresValidos[0])
     tk.OptionMenu(ventana, colorVar, *coloresValidos).grid(row=3, column=1, padx=10, sticky="w")
@@ -796,6 +795,17 @@ def exportarCierreDiarioCSV(listaObjetos):
 
 def verEstacionamiento(tamanno, baseDatos, config):
     """
+    Funcionalidad:
+        Abre la ventana con el mapa visual del estacionamiento, mostrando
+        los espacios organizados en paginas de 12 en 12. Permite navegar
+        entre paginas y seleccionar un espacio para estacionar un vehiculo
+        o para observarlo y pagarlo si ya esta ocupado.
+    Entrada:
+        - tamanno (int): Cantidad total de espacios del estacionamiento.
+        - baseDatos (list): Lista de objetos Estacionamiento.
+        - config (Configuracion): Objeto con la configuracion del sistema.
+    Salida:
+        - baseDatos (list): Lista de objetos Estacionamiento actualizada.
     """
     ventana = tk.Toplevel()
     ventana.title("Estacionamiento")
@@ -805,7 +815,15 @@ def verEstacionamiento(tamanno, baseDatos, config):
     marcoEstacionamientos.grid(row=1, column=0, columnspan=3, sticky="w")
     def CambiarPagina(baseDatos, modo, pagina):
         """
-        Funcionamiento: cambia de pagina dependiendo de que modo se use: 0 para ir a la siguiente pagina, 1 para ir a la anterior
+        Funcionalidad:
+            Cambia la pagina visible del mapa de estacionamiento,
+            regenerando la interfaz grafica con los espacios correspondientes.
+        Entrada:
+            - baseDatos (list): Lista de objetos Estacionamiento.
+            - modo (int): 0 para ir a la pagina siguiente, 1 para ir a la pagina anterior.
+            - pagina (int): Numero de la pagina actual.
+        Salida:
+            - pagina (int): Numero de la nueva pagina generada.
         """
         if modo==0:
             generarUI(baseDatos,pagina+1)
@@ -866,6 +884,7 @@ def verEstacionamiento(tamanno, baseDatos, config):
             tk.Button(verEspacio, text="Pagar",font=("Arial", 10, "bold"), width=8, height=3,bg="#B6CAFF", bd=0, activebackground="#B9C0FF", cursor="hand2", command=lambda: opcionesPago(), activeforeground="#ffffff").grid(row=5, column=1, padx=10, pady=5)
             tk.Button(verEspacio, text="Regresar", font=("Arial", 10, "bold"),width=8, height=3, bg="#B6CAFF", bd=0,command=lambda: verEspacio.destroy(), activebackground="#B9C0FF", cursor="hand2", activeforeground="#ffffff").grid(row=5, column=2, padx=10, pady=5)
         return
+    
     def generarUI(baseDatos, pagina=0):
         #lo que hago acá, es borrar widgets ya que cuando cambio de pagina, los widgets (objetos como botones o textos) se quedan
         #ahí puestos, entonces al cambiar de pagina, estos desaparecen para que no estén puestos por abajo o que al cambiar mucho de
@@ -883,8 +902,6 @@ def verEstacionamiento(tamanno, baseDatos, config):
                         bandera = True
                 borde = tk.Frame(marcoEstacionamientos, bg="#FF6E6E" if bandera else "#79FF96", padx=5, pady=5)
                 borde.grid(row=i,column=o,padx=10,pady=80)
-                #uso lambda porque es la unica forma de pasar parametros en en command, sin este, el comando se ejecuta solo y usar el boton no serviria
-                #ademas, asigno variables en el lambda para que cada boton tenga parametros unicos y no el mismo por ser generados en for
                 tk.Button(borde, text=f"{indice}", font=("Arial", 30, "bold"), width=3, height=3, bg="#FF5959" if bandera else "#59FF7D", fg="#ffffff", bd=0, command=lambda indice=indice, bandera=bandera: observarEspacio(baseDatos, indice,valor=bandera, config=config), activebackground="#FF3F4F" if bandera else "#2EFF74", cursor="hand2").grid()
         borde = tk.Frame(ventana, bg="#6EE2FF" if pagina==0 else "#f0f0f0", padx=5, pady=5)
         borde.place(x=660, y=500)
