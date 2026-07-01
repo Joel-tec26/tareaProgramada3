@@ -860,8 +860,10 @@ def verEstacionamiento(tamanno, baseDatos, config):
                 elif seleccion=="Targeta":
                     opcion=3
                 baseDatos[num-1].asignarEstadia([baseDatos[num-1].obtenerEstadia()[0],baseDatos[num-1].obtenerEstadia()[1],datetime.now().strftime("%d/%m/%Y %H:%M")])
-                baseDatos[num-1].asignarPago((baseDatos[num-1].obtenerPago()[0],opcion))
-                generarVoucher(baseDatos[num-1],config)
+                horaSalida = datetime.now().strftime("%d/%m/%Y %H:%M")
+                monto = calcularMonto(baseDatos[num-1].obtenerEstadia()[1], horaSalida,  config.obtenerMontoPorHora(), config.obtenerTiempoGracia())
+                baseDatos[num-1].asignarPago((monto,opcion))
+                generarFactura(baseDatos[num-1],config)
                 guardarBaseDatos(baseDatos)
                 tk.Label(menupago2, text=f"Pago realizado con exito", font=("Arial", 10, "bold")).grid(padx=40)
                 tk.Button(menupago2, text="click para regresar", width=14, height=2, cursor="hand2", command=cerrarPestannas).grid(row=1, column=0, padx=30, pady=5)
